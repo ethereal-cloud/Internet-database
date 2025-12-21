@@ -1,0 +1,80 @@
+# yii console commands
+/yii
+/yii_test
+/yii_test.bat
+
+# phpstorm project files
+.idea
+
+# netbeans project files
+nbproject
+
+# zend studio for eclipse project files
+.buildpath
+.project
+.settings
+
+# windows thumbnail cache
+Thumbs.db
+
+# composer vendor dir
+/vendor
+
+# composer itself is not needed
+composer.phar
+
+# Mac DS_Store Files
+.DS_Store
+
+# phpunit itself is not needed
+phpunit.phar
+# local phpunit config
+/phpunit.xml
+
+# vagrant runtime
+/.vagrant
+
+# ignore generated files
+/frontend/web/index.php
+/frontend/web/index-test.php
+/frontend/web/robots.txt
+/backend/web/index.php
+/backend/web/index-test.php
+/backend/web/robots.txt
+
+# ===== Yii runtime & assets (generated) =====
+/frontend/runtime/
+/backend/runtime/
+/console/runtime/
+/common/runtime/
+**/runtime/
+
+/frontend/web/assets/
+/backend/web/assets/
+**/web/assets/
+
+# ===== Local config (contains db password etc.) =====
+/common/config/main-local.php
+/common/config/params-local.php
+/frontend/config/main-local.php
+/frontend/config/params-local.php
+/backend/config/main-local.php
+/backend/config/params-local.php
+/console/config/main-local.php
+/console/config/params-local.php
+
+# ===== uploads (optional) =====
+/frontend/web/uploads/*
+/backend/web/uploads/*
+!/frontend/web/uploads/.gitkeep
+!/backend/web/uploads/.gitkeep
+
+# ===== env / secrets =====
+.env
+.env.*
+*.key
+*.pem
+
+# ===== VSCode =====
+.vscode/
+

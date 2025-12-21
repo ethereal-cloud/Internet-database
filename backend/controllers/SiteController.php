@@ -76,6 +76,16 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // 登录成功后检查角色
+            $role = Yii::$app->user->identity->role ?? null;
+            
+            // 只允许 admin 和 employee 登录 backend
+            if (!in_array($role, ['admin', 'employee'])) {
+                Yii::$app->user->logout();
+                Yii::$app->session->setFlash('error', '该账号无权访问管理后台，请使用客户端登录。');
+                return $this->render('login', ['model' => $model]);
+            }
+            
             return $this->goBack();
         } else {
             $model->password = '';

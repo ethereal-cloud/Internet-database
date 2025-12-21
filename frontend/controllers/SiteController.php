@@ -90,6 +90,15 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            // 登录成功后检查角色
+            $role = Yii::$app->user->identity->role ?? null;
+            
+            // 如果是 admin 或 employee，跳转到 backend
+            if (in_array($role, ['admin', 'employee'])) {
+                return $this->redirectByRole();
+            }
+            
+            // customer 留在 frontend
             return $this->redirectByRole();
         } else {
             $model->password = '';
@@ -107,24 +116,22 @@ class SiteController extends Controller
     {
         $role = Yii::$app->user->identity->role ?? 'customer';
         
-        switch ($role) {
-            case 'admin':
-                // 管理员跳转到 backend
-                // 注意：如果 backend 和 frontend 是不同域名，需要修改为完整 URL
-                // 例如：return Yii::$app->response->redirect('http://admin.yoursite.com/site/index');
-                return Yii::$app->response->redirect(['/backend/web/index.php']);
-                
-            case 'employee':
-                // 员工跳转到员工工作台（后续实现）
-                Yii::$app->session->setFlash('info', '欢迎回来，员工！');
-                return $this->redirect(['/site/index']);
-                
-            case 'customer':
-            default:
-                // 客户跳转到客户页面
-                Yii::$app->session->setFlash('success', '欢迎回来！');
-                return $this->redirect(['/site/index']);
+        // admin 和 employee 跳转到 backend
+        if (in_array($role, ['admin', 'employee'])) {
+            // 注意：如果 backend 和 frontend 是不同域名，需要修改为完整 URL
+            // 例如：return Yii::$app->response->redirect('http://admin.yoursite.com/site/index');
+            Yii::$app->session->setFlash('info', '正在跳转到管理后台...');
+            return Yii::$app->response->redirect(['/backend/web/index.php']);
         }
+        
+        // customer 留在 frontend
+        if ($role === 'customer') {
+            Yii::$app->session->setFlash('success', '欢迎回来！');
+            return $this->redirect(['/site/index']);
+        }
+        
+        // 默认跳转
+        return $this->goHome();
     }
 
     /**
@@ -194,7 +201,7 @@ class SiteController extends Controller
                 $customer->user_id = $user->id;
                 $customer->Name = $model->username; // 使用用户名作为初始姓名
 
-                
+
                 if ($customer->save()) {
                     Yii::$app->session->setFlash('success', '注册成功！请登录。');
                 } else {

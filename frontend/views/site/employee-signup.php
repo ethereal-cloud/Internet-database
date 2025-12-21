@@ -25,6 +25,22 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= $form->field($model, 'email')->textInput(['placeholder' => '邮箱地址']) ?>
 
                 <?= $form->field($model, 'password')->passwordInput(['placeholder' => '密码（至少6位）']) ?>
+                
+                <hr>
+                <h4>员工信息</h4>
+
+                <?= $form->field($model, 'employeeName')->textInput(['placeholder' => '真实姓名'])->label('姓名') ?>
+
+                <?= $form->field($model, 'employeeGender')->dropDownList(
+                    ['男' => '男', '女' => '女'],
+                    ['prompt' => '请选择性别']
+                )->label('性别') ?>
+
+                <?= $form->field($model, 'employeePosition')->textInput(['placeholder' => '例如：宠物护理员、前台、客服等'])->label('职位') ?>
+
+                <?= $form->field($model, 'employeeContact')->textInput(['placeholder' => '手机号码或其他联系方式'])->label('联系方式') ?>
+                
+                <hr>
 
                 <?= $form->field($model, 'inviteCode')->textInput(['placeholder' => '请输入邀请码'])->label('邀请码') ?>
 

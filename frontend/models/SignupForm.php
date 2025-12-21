@@ -15,6 +15,12 @@ class SignupForm extends Model
     public $password;
     public $role = 'customer'; // 默认角色为客户
     public $inviteCode; // 员工注册邀请码
+    
+    // 员工专用字段
+    public $employeeName;
+    public $employeeGender;
+    public $employeePosition;
+    public $employeeContact;
 
 
     /**
@@ -43,6 +49,27 @@ class SignupForm extends Model
             ['inviteCode', 'required', 'when' => function($model) {
                 return $model->role === 'employee';
             }, 'message' => '员工注册需要邀请码'],
+            
+            // 员工信息字段验证
+            ['employeeName', 'required', 'when' => function($model) {
+                return $model->role === 'employee';
+            }, 'message' => '请填写姓名'],
+            ['employeeName', 'string', 'max' => 45],
+            
+            ['employeeGender', 'required', 'when' => function($model) {
+                return $model->role === 'employee';
+            }, 'message' => '请选择性别'],
+            ['employeeGender', 'in', 'range' => ['男', '女']],
+            
+            ['employeePosition', 'required', 'when' => function($model) {
+                return $model->role === 'employee';
+            }, 'message' => '请填写职位'],
+            ['employeePosition', 'string', 'max' => 45],
+            
+            ['employeeContact', 'required', 'when' => function($model) {
+                return $model->role === 'employee';
+            }, 'message' => '请填写联系方式'],
+            ['employeeContact', 'string', 'max' => 45],
         ];
     }
 

@@ -185,12 +185,15 @@ class SiteController extends Controller
             if ($user) {
                 // 注册成功后自动创建 Customer 记录
                 $customer = new \common\models\Customer();
+                
+                // 生成 CustomerID（查询当前最大值 +1）
+                $maxId = \common\models\Customer::find()->max('CustomerID');
+                $customer->CustomerID = $maxId ? ($maxId + 1) : 200001; // 如果表为空，从 200001 开始
+                
+                // 关联用户 ID
                 $customer->user_id = $user->id;
                 $customer->Name = $model->username; // 使用用户名作为初始姓名
-                $customer->Gender = '男'; // 默认值
-                $customer->Contact = $model->email; // 使用邮箱作为联系方式
-                $customer->Address = '未填写'; // 默认值
-                $customer->MemberLevel = '普通会员'; // 默认等级
+
                 
                 if ($customer->save()) {
                     Yii::$app->session->setFlash('success', '注册成功！请登录。');
@@ -232,11 +235,19 @@ class SiteController extends Controller
             if ($user) {
                 // 注册成功后自动创建 Employee 记录
                 $employee = new \common\models\Employee();
+                
+                // 生成 EmployeeID（查询当前最大值 +1）
+                $maxId = \common\models\Employee::find()->max('EmployeeID');
+                $employee->EmployeeID = $maxId ? ($maxId + 1) : 100001; // 如果表为空，从 100001 开始
+                
+                // 关联用户 ID
                 $employee->user_id = $user->id;
-                $employee->Name = $model->username; // 使用用户名作为初始姓名
-                $employee->Gender = '男'; // 默认值
-                $employee->Position = '待分配'; // 默认职位
-                $employee->Contact = $model->email; // 使用邮箱作为联系方式
+                
+                // 填写完整员工信息
+                $employee->Name = $model->employeeName;
+                $employee->Gender = $model->employeeGender;
+                $employee->Position = $model->employeePosition;
+                $employee->Contact = $model->employeeContact;
                 $employee->HireDate = date('Y-m-d'); // 当前日期
                 
                 if ($employee->save()) {

@@ -43,7 +43,22 @@ class FosterorderSearch extends Fosterorder
     {
         $query = Fosterorder::find();
 
-        // add conditions that should always apply here
+        // 行级过滤
+        $user = \Yii::$app->user->identity;
+        if ($user && isset($user->role)) {
+            if ($user->role === 'customer') {
+                // 通过 user_id 反向查询获取 CustomerID
+                $query->andWhere(['CustomerID' => $user->getCustomerId()]);
+            } else if ($user->role === 'employee') {
+                // employee 只能查看分配给自己的订单
+                // 表名和字段名已根据数据库结构调整
+                $query->alias('o')
+                    ->innerJoin('order_employee oe', 'oe.OrderID = o.OrderID')
+                    ->andWhere(['oe.EmployeeID' => $user->getEmployeeId()])
+                    ->groupBy('o.OrderID');
+            }
+            // admin 可以看所有
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

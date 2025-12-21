@@ -7,7 +7,9 @@ use common\models\Fosterservice;
 use backend\models\FosterserviceSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * FosterserviceController implements the CRUD actions for Fosterservice model.
@@ -20,6 +22,38 @@ class FosterserviceController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        // admin 全部允许
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'admin';
+                        },
+                    ],
+                    [
+                        // employee 只能查看
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'employee';
+                        },
+                    ],
+                    [
+                        // customer 只能查看
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'customer';
+                        },
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -86,8 +120,12 @@ class FosterserviceController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->ServiceID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // admin 不能修改 ServiceID
+            $safeAttributes = array_diff($model->attributes(), ['ServiceID']);
+            if ($model->save(true, $safeAttributes)) {
+                return $this->redirect(['view', 'id' => $model->ServiceID]);
+            }
         }
 
         return $this->render('update', [

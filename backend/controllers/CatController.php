@@ -4,10 +4,13 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Cat;
+use common\models\Pet;
 use backend\models\CatSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * CatController implements the CRUD actions for Cat model.
@@ -20,6 +23,40 @@ class CatController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            // user 表的 role 字段：'admin' | 'employee' | 'customer'
+                            $userRole = Yii::$app->user->identity->role ?? null;
+                            $actionId = $action->id;
+                            
+                            // admin 全开
+                            if ($userRole === 'admin') {
+                                return true;
+                            }
+                            
+                            // employee 只允许 index/view
+                            if ($userRole === 'employee') {
+                                return in_array($actionId, ['index', 'view']);
+                            }
+                            
+                            // customer 允许 index/view/create/update/delete（但需要行级过滤）
+                            if ($userRole === 'customer') {
+                                return in_array($actionId, ['index', 'view', 'create', 'update', 'delete']);
+                            }
+                            
+                            return false;
+                        },
+                    ],
+                ],
+                'denyCallback' => function ($rule, $action) {
+                    throw new ForbiddenHttpException('您没有权限访问此资源。');
+                },
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -66,8 +103,35 @@ class CatController extends Controller
     {
         $model = new Cat();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->PetID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // user 表的 role 字段；通过 customer.user_id 反查 CustomerID
+            $userRole = Yii::$app->user->identity->role ?? null;
+            $userId = Yii::$app->user->id;
+            
+            // customer 创建前必须校验 PetID 属于自己
+            if ($userRole === 'customer') {
+                // 通过 customer.user_id 查找 CustomerID
+                $customer = \common\models\Customer::findOne(['user_id' => $userId]);
+                if (!$customer) {
+                    throw new NotFoundHttpException('未找到对应的客户信息。');
+                }
+                
+                $petId = $model->PetID;
+                $pet = Pet::findOne(['PetID' => $petId, 'CustomerID' => $customer->CustomerID]);
+                if (!$pet) {
+                    throw new NotFoundHttpException('您没有权限操作此宠物。');
+                }
+                // 使用字段白名单保存
+                if ($model->save(false, ['PetID', 'FurLength', 'Personality'])) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
+            } elseif ($userRole === 'admin') {
+                // admin 全开
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
+            }
+            // employee 不能 create（已由 AccessControl 阻止）
         }
 
         return $this->render('create', [
@@ -86,8 +150,21 @@ class CatController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->PetID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // user 表的 role 字段
+            $userRole = Yii::$app->user->identity->role ?? null;
+            
+            // customer 和 employee 的 update 必须使用白名单保存（禁止修改 PetID）
+            if (in_array($userRole, ['customer', 'employee'])) {
+                if ($model->save(true, ['FurLength', 'Personality'])) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
+            } else {
+                // admin 全开
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
+            }
         }
 
         return $this->render('update', [
@@ -118,7 +195,47 @@ class CatController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Cat::findOne($id)) !== null) {
+        // user 表的 role 字段；通过 employee.user_id 和 customer.user_id 反查 ID
+        $userRole = Yii::$app->user->identity->role ?? null;
+        $userId = Yii::$app->user->id;
+        
+        if ($userRole === 'admin') {
+            // admin 不加过滤
+            $model = Cat::findOne($id);
+        } elseif ($userRole === 'employee') {
+            // 通过 employee.user_id 查找 EmployeeID
+            $employee = \common\models\Employee::findOne(['user_id' => $userId]);
+            if (!$employee) {
+                throw new NotFoundHttpException('未找到对应的员工信息。');
+            }
+            
+            // employee 只能找到自己匹配的 PetID
+            // 通过 Order_Employee -> FosterOrder -> Pet -> Cat
+            $model = Cat::find()
+                ->alias('c')
+                ->innerJoin('pet p', 'p.PetID = c.PetID')
+                ->innerJoin('fosterorder fo', 'fo.PetID = p.PetID')
+                ->innerJoin('order_employee oe', 'oe.OrderID = fo.OrderID')
+                ->where(['c.PetID' => $id, 'oe.EmployeeID' => $employee->EmployeeID])
+                ->one();
+        } elseif ($userRole === 'customer') {
+            // 通过 customer.user_id 查找 CustomerID
+            $customer = \common\models\Customer::findOne(['user_id' => $userId]);
+            if (!$customer) {
+                throw new NotFoundHttpException('未找到对应的客户信息。');
+            }
+            
+            // customer 只能找到属于自己的 PetID
+            $model = Cat::find()
+                ->alias('c')
+                ->innerJoin('pet p', 'p.PetID = c.PetID')
+                ->where(['c.PetID' => $id, 'p.CustomerID' => $customer->CustomerID])
+                ->one();
+        } else {
+            $model = null;
+        }
+        
+        if ($model !== null) {
             return $model;
         }
 

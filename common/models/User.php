@@ -209,4 +209,36 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->password_reset_token = null;
     }
+
+    /**
+     * 关联到 Employee 表
+     */
+    public function getEmployee()
+    {
+        return $this->hasOne(Employee::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * 关联到 Customer 表
+     */
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::class, ['user_id' => 'id']);
+    }
+
+    /**
+     * 获取员工业务ID
+     */
+    public function getEmployeeId()
+    {
+        return $this->employee ? $this->employee->EmployeeID : null;
+    }
+
+    /**
+     * 获取客户业务ID
+     */
+    public function getCustomerId()
+    {
+        return $this->customer ? $this->customer->CustomerID : null;
+    }
 }

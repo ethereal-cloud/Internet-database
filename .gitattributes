@@ -1,0 +1,21 @@
+# 默认：所有文本文件在工作区使用 CRLF
+* text=auto eol=crlf
+
+# （建议保留）这些文件最好还是 LF：避免以后你们用到 Docker/WSL/CI 或 Linux 时踩坑
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# 二进制文件：禁止换行符转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.7z  binary
+*.rar binary
+*.exe binary
+*.dll binary

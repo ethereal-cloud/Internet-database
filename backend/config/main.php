@@ -12,6 +12,18 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [],
+    'on beforeRequest' => function ($event) {
+        // 拦截非 admin 用户访问 backend
+        if (!Yii::$app->user->isGuest) {
+            $role = Yii::$app->user->identity->role ?? null;
+            if ($role !== 'admin') {
+                // 非管理员访问 backend，重定向到 frontend
+                Yii::$app->session->setFlash('error', '您没有权限访问管理后台。');
+                Yii::$app->response->redirect(['/frontend/web/index.php'])->send();
+                Yii::$app->end();
+            }
+        }
+    },
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',

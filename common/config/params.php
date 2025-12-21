@@ -5,4 +5,5 @@ return [
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
     'user.passwordResetTokenExpire' => 3600,
+    'employeeInviteCode' => '111', // 员工注册邀请码
 ];

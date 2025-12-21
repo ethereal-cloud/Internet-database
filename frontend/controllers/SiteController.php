@@ -85,18 +85,45 @@ class SiteController extends Controller
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
+            return $this->redirectByRole();
         }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirectByRole();
         } else {
             $model->password = '';
 
             return $this->render('login', [
                 'model' => $model,
             ]);
+        }
+    }
+    
+    /**
+     * 根据用户角色跳转到对应页面
+     */
+    private function redirectByRole()
+    {
+        $role = Yii::$app->user->identity->role ?? 'customer';
+        
+        switch ($role) {
+            case 'admin':
+                // 管理员跳转到 backend
+                // 注意：如果 backend 和 frontend 是不同域名，需要修改为完整 URL
+                // 例如：return Yii::$app->response->redirect('http://admin.yoursite.com/site/index');
+                return Yii::$app->response->redirect(['/backend/web/index.php']);
+                
+            case 'employee':
+                // 员工跳转到员工工作台（后续实现）
+                Yii::$app->session->setFlash('info', '欢迎回来，员工！');
+                return $this->redirect(['/site/index']);
+                
+            case 'customer':
+            default:
+                // 客户跳转到客户页面
+                Yii::$app->session->setFlash('success', '欢迎回来！');
+                return $this->redirect(['/site/index']);
         }
     }
 
@@ -153,13 +180,82 @@ class SiteController extends Controller
     public function actionSignup()
     {
         $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
-            Yii::$app->session->setFlash('success', 'Thank you for registration. Please check your inbox for verification email.');
-            return $this->goHome();
+        if ($model->load(Yii::$app->request->post())) {
+            $user = $model->signup();
+            if ($user) {
+                // 注册成功后自动创建 Customer 记录
+                $customer = new \common\models\Customer();
+                $customer->user_id = $user->id;
+                $customer->Name = $model->username; // 使用用户名作为初始姓名
+                $customer->Gender = '男'; // 默认值
+                $customer->Contact = $model->email; // 使用邮箱作为联系方式
+                $customer->Address = '未填写'; // 默认值
+                $customer->MemberLevel = '普通会员'; // 默认等级
+                
+                if ($customer->save()) {
+                    Yii::$app->session->setFlash('success', '注册成功！请登录。');
+                } else {
+                    Yii::$app->session->setFlash('warning', '注册成功，但创建客户资料失败，请联系管理员。');
+                }
+                return $this->redirect(['login']);
+            }
         }
 
         return $this->render('signup', [
             'model' => $model,
+        ]);
+    }
+
+    /**
+     * 员工注册（需要邀请码）
+     *
+     * @return mixed
+     */
+    public function actionEmployeeSignup()
+    {
+        $model = new SignupForm();
+        $model->role = 'employee'; // 设置为员工角色
+        $inviteCode = Yii::$app->request->get('code'); // 从 URL 获取邀请码
+        
+        if ($model->load(Yii::$app->request->post())) {
+            // 验证邀请码
+            $correctCode = Yii::$app->params['employeeInviteCode'];
+            if ($model->inviteCode !== $correctCode) {
+                Yii::$app->session->setFlash('error', '邀请码错误，无法注册员工账号。');
+                return $this->render('employee-signup', [
+                    'model' => $model,
+                    'inviteCode' => $inviteCode,
+                ]);
+            }
+            
+            $user = $model->signup();
+            if ($user) {
+                // 注册成功后自动创建 Employee 记录
+                $employee = new \common\models\Employee();
+                $employee->user_id = $user->id;
+                $employee->Name = $model->username; // 使用用户名作为初始姓名
+                $employee->Gender = '男'; // 默认值
+                $employee->Position = '待分配'; // 默认职位
+                $employee->Contact = $model->email; // 使用邮箱作为联系方式
+                $employee->HireDate = date('Y-m-d'); // 当前日期
+                
+                if ($employee->save()) {
+                    Yii::$app->session->setFlash('success', '员工账号注册成功！请登录。');
+                } else {
+                    Yii::$app->session->setFlash('warning', '注册成功，但创建员工资料失败，请联系管理员。');
+                }
+                return $this->redirect(['login']);
+            }
+        } else {
+            // 预填邀请码（如果 URL 中有）
+            if ($inviteCode) {
+                $model->inviteCode = $inviteCode;
+            }
+        }
+
+        return $this->render('employee-signup', [
+            'model' => $model,
+            'inviteCode' => $inviteCode,
         ]);
     }
 

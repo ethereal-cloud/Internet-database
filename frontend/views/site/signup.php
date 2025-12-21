@@ -30,6 +30,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
 
             <?php ActiveForm::end(); ?>
+            
+            <p class="text-muted">
+                <small>注册为客户账号，可以下单和管理宠物寄养服务</small>
+            </p>
+            
+            <p>
+                <?= Html::a('员工注册（需要邀请码）', ['employee-signup'], ['class' => 'btn btn-link']) ?>
+            </p>
         </div>
     </div>
 </div>

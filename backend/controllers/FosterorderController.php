@@ -4,10 +4,13 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Fosterorder;
+use common\models\Pet;
 use backend\models\FosterorderSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * FosterorderController implements the CRUD actions for Fosterorder model.
@@ -20,6 +23,38 @@ class FosterorderController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        // admin 允许 index/view/create/delete，但禁止 update
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'delete'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'admin';
+                        },
+                    ],
+                    [
+                        // employee 只能查看匹配的订单
+                        'allow' => true,
+                        'actions' => ['index', 'view'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'employee';
+                        },
+                    ],
+                    [
+                        // customer 可以 create/view/index/update(支付)
+                        'allow' => true,
+                        'actions' => ['index', 'view', 'create', 'update'],
+                        'matchCallback' => function ($rule, $action) {
+                            $user = Yii::$app->user->identity;
+                            return $user && isset($user->role) && $user->role === 'customer';
+                        },
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -65,9 +100,25 @@ class FosterorderController extends Controller
     public function actionCreate()
     {
         $model = new Fosterorder();
+        $user = Yii::$app->user->identity;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->OrderID]);
+        if ($model->load(Yii::$app->request->post())) {
+            if ($user->role === 'customer') {
+                // 通过 user_id 反向查询获取 CustomerID
+                // 检查 PetID 是否属于当前客户
+                $pet = Pet::findOne($model->PetID);
+                if (!$pet || $pet->CustomerID != $user->getCustomerId()) {
+                    Yii::$app->session->setFlash('error', '您只能为自己的宠物下单。');
+                    return $this->render('create', ['model' => $model]);
+                }
+                // 强制设置 CustomerID
+                $model->CustomerID = $user->getCustomerId();
+            }
+            // admin 可以为任何客户/宠物创建订单
+            
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->OrderID]);
+            }
         }
 
         return $this->render('create', [
@@ -85,9 +136,51 @@ class FosterorderController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $user = Yii::$app->user->identity;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->OrderID]);
+        // admin 禁止 update
+        if ($user->role === 'admin') {
+            throw new ForbiddenHttpException('管理员不能修改订单。');
+        }
+        
+        // employee 禁止 update
+        if ($user->role === 'employee') {
+            throw new ForbiddenHttpException('员工不能修改订单。');
+        }
+
+        // customer 只能支付：从 '待支付' -> '已支付但未开始'
+        if ($user->role === 'customer') {
+            // 通过 user_id 反向查询获取 CustomerID
+            if ($model->CustomerID != $user->getCustomerId()) {
+                throw new ForbiddenHttpException('您只能修改自己的订单。');
+            }
+            
+            // 检查当前状态（数据库中 OrderStatus 为 '未支付' 或 '已支付'）
+            if ($model->OrderStatus !== '未支付') {
+                throw new ForbiddenHttpException('只有待支付状态的订单才能支付。');
+            }
+            
+            if ($model->load(Yii::$app->request->post())) {
+                // TODO: 如果有 PayCode 字段，请取消注释下面的代码
+                // if (empty($model->PayCode) || $model->PayCode !== Yii::$app->request->post('paycode')) {
+                //     Yii::$app->session->setFlash('error', '支付码不正确。');
+                //     return $this->render('update', ['model' => $model]);
+                // }
+                
+                // 只允许修改 OrderStatus (和 PaidAt 如果存在)
+                $model->OrderStatus = '已支付';
+                // 如果有 PaidAt 字段
+                // $model->PaidAt = date('Y-m-d H:i:s');
+                
+                $safeAttributes = ['OrderStatus'];
+                // 如果有 PaidAt 字段，加入白名单
+                // $safeAttributes[] = 'PaidAt';
+                
+                if ($model->save(true, $safeAttributes)) {
+                    Yii::$app->session->setFlash('success', '支付成功！');
+                    return $this->redirect(['view', 'id' => $model->OrderID]);
+                }
+            }
         }
 
         return $this->render('update', [
@@ -104,8 +197,14 @@ class FosterorderController extends Controller
      */
     public function actionDelete($id)
     {
+        $user = Yii::$app->user->identity;
+        
+        // 只有 admin 可以删除
+        if ($user->role !== 'admin') {
+            throw new ForbiddenHttpException('您没有权限删除订单。');
+        }
+        
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 
@@ -118,7 +217,29 @@ class FosterorderController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Fosterorder::findOne($id)) !== null) {
+        $user = Yii::$app->user->identity;
+        
+        if ($user->role === 'customer') {
+            // 通过 user_id 反向查询获取 CustomerID
+            $model = Fosterorder::find()
+                ->where(['OrderID' => $id])
+                ->andWhere(['CustomerID' => $user->getCustomerId()])
+                ->one();
+        } else if ($user->role === 'employee') {
+            // employee 只能查看分配给自己的订单
+            // 表名和字段名已根据数据库结构调整
+            $model = Fosterorder::find()
+                ->alias('o')
+                ->innerJoin('order_employee oe', 'oe.OrderID = o.OrderID')
+                ->where(['o.OrderID' => $id])
+                ->andWhere(['oe.EmployeeID' => $user->getEmployeeId()])
+                ->one();
+        } else {
+            // admin 可以查看所有
+            $model = Fosterorder::findOne($id);
+        }
+        
+        if ($model !== null) {
             return $model;
         }
 

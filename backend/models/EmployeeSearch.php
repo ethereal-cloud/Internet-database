@@ -42,7 +42,13 @@ class EmployeeSearch extends Employee
     {
         $query = Employee::find();
 
-        // add conditions that should always apply here
+        // 行级过滤：employee 只能看自己
+        $user = \Yii::$app->user->identity;
+        if ($user && isset($user->role) && $user->role === 'employee') {
+            // 通过 user_id 反向查询获取 EmployeeID
+            $query->andWhere(['EmployeeID' => $user->getEmployeeId()]);
+        }
+        // admin 可以看所有
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

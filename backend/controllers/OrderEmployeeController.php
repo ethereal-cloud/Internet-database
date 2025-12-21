@@ -7,7 +7,9 @@ use common\models\OrderEmployee;
 use backend\models\OrderEmployeeSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * OrderEmployeeController implements the CRUD actions for OrderEmployee model.
@@ -20,6 +22,24 @@ class OrderEmployeeController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => function ($rule, $action) {
+                            // user 表的 role 字段：'admin' | 'employee' | 'customer'
+                            $userRole = Yii::$app->user->identity->role ?? null;
+                            // 只允许 admin 访问 Order_Employee 的所有操作
+                            return $userRole === 'admin';
+                        },
+                    ],
+                ],
+                'denyCallback' => function ($rule, $action) {
+                    throw new ForbiddenHttpException('您没有权限访问此资源。');
+                },
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [

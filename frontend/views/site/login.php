@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /* @var $this yii\web\View */
 /* @var $form yii\bootstrap\ActiveForm */
@@ -7,77 +7,27 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
+$this->context->layout = 'login';
 $this->title = '客户登录';
+$baseUrl = Yii::$app->request->baseUrl;
+$backendPath = str_replace('/frontend/web', '/backend/web/index.php', $baseUrl);
+if ($backendPath === $baseUrl) {
+    $backendPath = '/backend/web/index.php';
+}
+$backendLoginUrl = Yii::$app->request->hostInfo . $backendPath . '?r=site/login';
+$this->params['backendLoginUrl'] = $backendLoginUrl;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<style>
-.customer-login {
-    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: -20px;
-    padding: 20px;
-}
-.customer-login-box {
-    background: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    max-width: 400px;
-    width: 100%;
-}
-.customer-login-box h1 {
-    color: #66a6ff;
-    text-align: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-.customer-login-subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-    font-size: 14px;
-}
-.customer-login-icon {
-    text-align: center;
-    font-size: 60px;
-    color: #66a6ff;
-    margin-bottom: 20px;
-}
-.btn-customer-login {
-    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-    border: none;
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-}
-.btn-customer-login:hover {
-    background: linear-gradient(135deg, #66a6ff 0%, #89f7fe 100%);
-    color: white;
-}
-.customer-links {
-    text-align: center;
-    margin-top: 20px;
-}
-.customer-links a {
-    color: #66a6ff;
-    margin: 0 10px;
-}
-</style>
 
-<div class="customer-login">
-    <div class="customer-login-box">
-        <div class="customer-login-icon">
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-icon">
             <i class="glyphicon glyphicon-user"></i>
         </div>
-        <h1><?= Html::encode($this->title) ?></h1>
-        <p class="customer-login-subtitle">🐾 欢迎来到宠物寄养平台</p>
+        <h1 class="login-title"><?= Html::encode($this->title) ?></h1>
+        <p class="login-subtitle">欢迎来到宠物寄养平台</p>
 
-        <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
+        <?php $form = ActiveForm::begin(['id' => 'login-form', 'options' => ['class' => 'login-form']]); ?>
 
             <?= $form->field($model, 'username')->textInput(['autofocus' => true, 'placeholder' => '用户名'])->label('账号') ?>
 
@@ -85,22 +35,22 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?= $form->field($model, 'rememberMe')->checkbox()->label('记住我') ?>
 
-            <div style="color:#999;margin:1em 0; font-size: 12px;">
-                忘记密码？<?= Html::a('重置密码', ['site/request-password-reset']) ?>
+            <div class="login-helper">
+                忘记密码？<?= Html::a('重置密码', ['site/request-password-reset'], ['class' => 'login-link']) ?>
             </div>
 
             <div class="form-group">
-                <?= Html::submitButton('<i class="glyphicon glyphicon-log-in"></i> 登录', ['class' => 'btn btn-success btn-customer-login', 'name' => 'login-button']) ?>
+                <?= Html::submitButton('<i class="glyphicon glyphicon-log-in"></i> 登录', ['class' => 'btn login-button', 'name' => 'login-button']) ?>
             </div>
             
-            <div class="customer-links">
-                <p style="color: #666; margin-bottom: 10px;">还没有账号？</p>
-                <?= Html::a('<i class="glyphicon glyphicon-plus"></i> 注册客户账号', ['signup'], ['class' => 'btn btn-default', 'style' => 'margin: 5px;']) ?>
-                <?= Html::a('<i class="glyphicon glyphicon-briefcase"></i> 注册员工账号', ['employee-signup'], ['class' => 'btn btn-default', 'style' => 'margin: 5px;']) ?>
+            <div class="login-actions">
+                <p class="login-actions-title">还没有账号？</p>
+                <?= Html::a('<i class="glyphicon glyphicon-plus"></i> 注册客户账号', ['signup'], ['class' => 'btn']) ?>
+                <?= Html::a('<i class="glyphicon glyphicon-briefcase"></i> 注册员工账号', ['employee-signup'], ['class' => 'btn']) ?>
             </div>
             
-            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-                <p style="color: #999; font-size: 12px;">💼 内部员工请访问：<?= Html::a('管理后台登录', Yii::$app->params['backendBaseUrl'] . '/index.php?r=site/login', ['style' => 'color: #764ba2;']) ?></p>
+            <div class="login-footnote">
+                <p>内部员工请访问：<?= Html::a('管理后台登录', $backendLoginUrl, ['class' => 'login-link']) ?></p>
             </div>
 
         <?php ActiveForm::end(); ?>

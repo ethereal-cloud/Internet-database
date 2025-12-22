@@ -18,7 +18,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <p class="text-muted">客户：<?= Html::encode($customer->Name ?: $customer->CustomerID) ?></p>
 
     <div class="order-form">
-        <?php $form = ActiveForm::begin(); ?>
+        <?php 
+        // 每次加载页面时清空宠物选择，强制用户重新选择
+        $model->PetID = null;
+        $form = ActiveForm::begin(); 
+        ?>
 
         <?= $form->field($model, 'PetID')->dropDownList(
             ArrayHelper::merge(
@@ -46,6 +50,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]
         )->label('选择服务') ?>
+
+        <div class="form-group">
+            <label class="control-label">选择员工</label>
+            <select name="employeeIds[]" id="employee-select" class="form-control" multiple size="5" disabled>
+                <option value="" disabled selected hidden>请先选择服务</option>
+            </select>
+            <p class="help-block" id="employee-hint" style="color: #999;">请先选择服务</p>
+        </div>
 
         <?= $form->field($model, 'StartTime')->input('datetime-local', [
             'value' => date('Y-m-d\TH:i')
@@ -82,11 +94,20 @@ $this->params['breadcrumbs'][] = $this->title;
 document.addEventListener('DOMContentLoaded', function() {
     var petSelect = document.querySelector('select[name="Fosterorder[PetID]"]');
     var serviceSelect = document.getElementById('service-select');
+    var employeeSelect = document.getElementById('employee-select');
+    var employeeHint = document.getElementById('employee-hint');
     var startTimeInput = document.querySelector('input[name="Fosterorder[StartTime]"]');
     var endTimeInput = document.querySelector('input[name="Fosterorder[EndTime]"]');
     var paymentAmountInput = document.getElementById('payment-amount');
     var timeErrorDiv = document.getElementById('time-error');
     var submitButton = document.querySelector('button[type="submit"]');
+    
+    // 员工数据：{employeeId: name}
+    var employees = <?= json_encode(ArrayHelper::map(
+        \common\models\Employee::find()->all(),
+        'EmployeeID',
+        function($emp) { return $emp->Name . ' (#' . $emp->EmployeeID . ')'; }
+    )) ?>;
     
     // 验证时间的函数
     function validateTime() {
@@ -123,12 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return '';
     })) ?>;
     
-    // 服务数据：{serviceId: {category, price, label}}
+    // 服务数据：{serviceId: {category, price, label, serviceType}}
     var serviceData = <?= json_encode(array_map(function($service) {
         return [
             'category' => $service->PetCategory,
             'price' => $service->Price,
             'label' => $service->ServiceType . ' / ' . $service->PetCategory . ' (￥' . $service->Price . '/天)',
+            'serviceType' => $service->ServiceType,
         ];
     }, ArrayHelper::index($services, 'ServiceID'))) ?>;
     
@@ -213,6 +235,96 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateAmount();
     });
     
+    // 监听服务选择变化，启用/禁用员工选择
+    serviceSelect.addEventListener('change', function() {
+        var serviceId = this.value;
+        
+        if (serviceId && serviceData[serviceId]) {
+            var service = serviceData[serviceId];
+            var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
+            
+            // 启用员工选择
+            employeeSelect.disabled = false;
+            employeeSelect.innerHTML = '';
+            
+            // 添加所有员工选项
+            Object.keys(employees).forEach(function(empId) {
+                var option = document.createElement('option');
+                option.value = empId;
+                option.textContent = employees[empId];
+                employeeSelect.appendChild(option);
+            });
+            
+            // 更新提示信息
+            if (service.serviceType === '豪华寄养') {
+                employeeHint.textContent = '豪华服务必须选择3个员工（按住Ctrl键多选）';
+                employeeHint.style.color = '#d9534f';
+            } else {
+                employeeHint.textContent = '普通服务只能选择1个员工';
+                employeeHint.style.color = '#999';
+            }
+        } else {
+            // 禁用员工选择
+            employeeSelect.disabled = true;
+            employeeSelect.innerHTML = '<option value="" disabled selected hidden>请先选择服务</option>';
+            employeeHint.textContent = '请先选择服务';
+            employeeHint.style.color = '#999';
+        }
+        
+        calculateAmount();
+    });
+    
+    // 监听员工选择变化，验证数量
+    employeeSelect.addEventListener('change', function() {
+        var serviceId = serviceSelect.value;
+        if (!serviceId || !serviceData[serviceId]) return;
+        
+        var service = serviceData[serviceId];
+        var selectedCount = Array.from(employeeSelect.selectedOptions).length;
+        var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
+        
+        if (selectedCount !== requiredCount) {
+            employeeHint.textContent = '已选' + selectedCount + '个员工，' + 
+                (service.serviceType === '豪华寄养' ? '必须选择3个' : '只能选择1个') + '！';
+            employeeHint.style.color = '#d9534f';
+            submitButton.disabled = true;
+        } else {
+            employeeHint.textContent = '✅ 已正确选择' + selectedCount + '个员工';
+            employeeHint.style.color = '#5cb85c';
+            submitButton.disabled = false;
+        }
+    });
+    
     serviceSelect.addEventListener('change', calculateAmount);
+    // 表单提交验证
+    document.querySelector('form').addEventListener('submit', function(e) {
+        var serviceId = serviceSelect.value;
+        if (!serviceId) {
+            alert('请选择服务！');
+            e.preventDefault();
+            return false;
+        }
+        
+        var selectedEmployees = Array.from(employeeSelect.selectedOptions);
+        if (selectedEmployees.length === 0) {
+            alert('请选择员工！');
+            e.preventDefault();
+            return false;
+        }
+        
+        var service = serviceData[serviceId];
+        var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
+        
+        if (selectedEmployees.length !== requiredCount) {
+            alert(service.serviceType === '豪华寄养' ? 
+                '豪华服务必须选择3个员工！' : 
+                '普通服务只能选择1个员工！');
+            e.preventDefault();
+            return false;
+        }
+        
+        // name="employeeIds[]" 会自动提交，不需要手动添加 hidden inputs
+        return true;
+    });
 });
 </script>

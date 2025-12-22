@@ -399,6 +399,15 @@ class SiteController extends Controller
         $model->CustomerID = $customer->CustomerID;
         $model->OrderStatus = '未支付'; // 默认未支付
 
+        // 获取客户的宠物列表（提前准备，供所有渲染使用）
+        $pets = Pet::find()
+            ->where(['CustomerID' => $customer->CustomerID])
+            ->with(['cat', 'dog']) // 需要加载关联数据用于类型判断
+            ->all();
+
+        // 获取所有服务（提前准备，供所有渲染使用）
+        $services = Fosterservice::find()->all();
+
         if ($model->load(Yii::$app->request->post())) {
             // 验证宠物是否属于当前客户
             $pet = Pet::findOne(['PetID' => $model->PetID, 'CustomerID' => $customer->CustomerID]);
@@ -407,6 +416,8 @@ class SiteController extends Controller
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
                 ]);
             }
 
@@ -417,6 +428,8 @@ class SiteController extends Controller
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
                 ]);
             }
 
@@ -434,6 +447,75 @@ class SiteController extends Controller
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
+            // 检查该宠物在指定时间段内是否已有其他订单（时间冲突检测）
+            $conflictOrder = Fosterorder::find()
+                ->where(['PetID' => $model->PetID])
+                ->andWhere([
+                    'or',
+                    // 新订单开始时间在已有订单期间内
+                    ['and', ['<', 'StartTime', $model->StartTime], ['>', 'EndTime', $model->StartTime]],
+                    // 新订单结束时间在已有订单期间内
+                    ['and', ['<', 'StartTime', $model->EndTime], ['>', 'EndTime', $model->EndTime]],
+                    // 新订单完全覆盖已有订单
+                    ['and', ['>=', 'StartTime', $model->StartTime], ['<=', 'EndTime', $model->EndTime]],
+                    // 已有订单完全覆盖新订单
+                    ['and', ['<=', 'StartTime', $model->StartTime], ['>=', 'EndTime', $model->EndTime]]
+                ])
+                ->one();
+
+            if ($conflictOrder) {
+                Yii::$app->session->setFlash('error', '该宠物在此时间段已有其他服务预约！订单号：' . $conflictOrder->OrderID . '，时间：' . $conflictOrder->StartTime . ' - ' . $conflictOrder->EndTime);
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
+            // 验证员工选择
+            $employeeIds = Yii::$app->request->post('employeeIds', []);
+            if (empty($employeeIds)) {
+                Yii::$app->session->setFlash('error', '请选择员工！');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
+            // 根据服务类型验证员工数量
+            $requiredCount = ($service->ServiceType === '豪华寄养') ? 3 : 1;
+            if (count($employeeIds) !== $requiredCount) {
+                Yii::$app->session->setFlash('error', 
+                    ($service->ServiceType === '豪华寄养' ? '豪华服务必须选择3个员工！' : '普通服务只能选择1个员工！') .
+                    '（当前选择了' . count($employeeIds) . '个）'
+                );
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
+            // 验证员工ID是否有效
+            $validEmployees = \common\models\Employee::find()
+                ->where(['EmployeeID' => $employeeIds])
+                ->count();
+            if ($validEmployees !== count($employeeIds)) {
+                Yii::$app->session->setFlash('error', '选择的员工中有无效的ID。');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
                 ]);
             }
 
@@ -441,23 +523,32 @@ class SiteController extends Controller
             $maxOrderId = Fosterorder::find()->max('OrderID');
             $model->OrderID = $maxOrderId ? $maxOrderId + 1 : 1;
 
-            // 保存订单
-            if ($model->save()) {
+            // 使用事务保存订单和员工关联
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                // 保存订单
+                if (!$model->save()) {
+                    throw new \Exception('订单保存失败。');
+                }
+
+                // 保存订单-员工关联
+                foreach ($employeeIds as $empId) {
+                    $orderEmployee = new \common\models\OrderEmployee();
+                    $orderEmployee->OrderID = $model->OrderID;
+                    $orderEmployee->EmployeeID = $empId;
+                    if (!$orderEmployee->save()) {
+                        throw new \Exception('员工关联保存失败。');
+                    }
+                }
+
+                $transaction->commit();
                 Yii::$app->session->setFlash('success', '订单创建成功！订单号：' . $model->OrderID);
                 return $this->redirect(['orders']);
-            } else {
-                Yii::$app->session->setFlash('error', '订单创建失败，请检查输入。');
+            } catch (\Exception $e) {
+                $transaction->rollBack();
+                Yii::$app->session->setFlash('error', '订单创建失败：' . $e->getMessage());
             }
         }
-
-        // 获取客户的宠物列表
-        $pets = Pet::find()
-            ->where(['CustomerID' => $customer->CustomerID])
-            ->with(['cat', 'dog']) // 需要加载关联数据用于类型判断
-            ->all();
-
-        // 获取所有服务
-        $services = Fosterservice::find()->all();
 
         return $this->render('order-create', [
             'model' => $model,

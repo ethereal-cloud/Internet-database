@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\OrderEmployeeSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Order Employees';
+$this->title = '订单-员工';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="order-employee-index">
@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Order Employee', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('新增关联', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -30,7 +30,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'OrderID',
             'EmployeeID',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
+                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
+                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID],[
+                        'data'=>['confirm'=>'确认删除该关联？','method'=>'post']
+                    ]),
+                ],
+            ],
         ],
     ]); ?>
 

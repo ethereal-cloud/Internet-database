@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\FosterorderSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Fosterorders';
+$this->title = '订单列表';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="fosterorder-index">
@@ -19,7 +19,6 @@ $this->params['breadcrumbs'][] = $this->title;
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -57,7 +56,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'OrderStatus',
             'PaymentAmount',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->OrderID]),
+                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->OrderID]),
+                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->OrderID],[
+                        'data'=>['confirm'=>'确认删除该订单？','method'=>'post']
+                    ]),
+                ],
+            ],
         ],
     ]); ?>
 

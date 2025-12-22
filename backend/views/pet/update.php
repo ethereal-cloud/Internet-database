@@ -8,10 +8,10 @@ use yii\helpers\Html;
 /* @var $dog common\models\Dog|null */
 /* @var $type string */
 
-$this->title = 'Update Pet: ' . $model->PetID;
-$this->params['breadcrumbs'][] = ['label' => 'Pets', 'url' => ['index']];
+$this->title = '编辑宠物：' . $model->PetID;
+$this->params['breadcrumbs'][] = ['label' => '宠物列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->PetID, 'url' => ['view', 'id' => $model->PetID]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = '编辑';
 ?>
 <div class="pet-update">
 

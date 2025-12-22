@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\CustomerSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Customers';
+$this->title = '客户列表';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="customer-index">
@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Customer', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('新增客户', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -35,7 +35,16 @@ $this->params['breadcrumbs'][] = $this->title;
             //'Address',
             //'MemberLevel',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->CustomerID]),
+                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->CustomerID]),
+                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->CustomerID],[
+                        'data'=>['confirm'=>'确认删除该客户？','method'=>'post']
+                    ]),
+                ],
+            ],
         ],
     ]); ?>
 

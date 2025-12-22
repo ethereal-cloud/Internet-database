@@ -43,8 +43,8 @@ class OrderEmployee extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'OrderID' => 'Order ID',
-            'EmployeeID' => 'Employee ID',
+            'OrderID' => '订单编号',
+            'EmployeeID' => '员工编号',
         ];
     }
 

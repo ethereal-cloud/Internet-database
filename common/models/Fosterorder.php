@@ -56,14 +56,14 @@ class Fosterorder extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'OrderID' => 'Order ID',
-            'CustomerID' => 'Customer ID',
-            'PetID' => 'Pet ID',
-            'ServiceID' => 'Service ID',
-            'StartTime' => 'Start Time',
-            'EndTime' => 'End Time',
-            'OrderStatus' => 'Order Status',
-            'PaymentAmount' => 'Payment Amount',
+            'OrderID' => '订单编号',
+            'CustomerID' => '客户编号',
+            'PetID' => '宠物编号',
+            'ServiceID' => '服务编号',
+            'StartTime' => '开始时间',
+            'EndTime' => '结束时间',
+            'OrderStatus' => '订单状态',
+            'PaymentAmount' => '支付金额',
         ];
     }
 

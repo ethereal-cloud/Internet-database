@@ -5,10 +5,10 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model common\models\Fosterorder */
 
-$this->title = 'Update Fosterorder: ' . $model->OrderID;
-$this->params['breadcrumbs'][] = ['label' => 'Fosterorders', 'url' => ['index']];
+$this->title = '编辑订单：' . $model->OrderID;
+$this->params['breadcrumbs'][] = ['label' => '订单列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->OrderID, 'url' => ['view', 'id' => $model->OrderID]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = '编辑';
 ?>
 <div class="fosterorder-update">
 

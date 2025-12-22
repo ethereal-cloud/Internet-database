@@ -52,13 +52,13 @@ class Pet extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'PetID' => 'Pet ID',
-            'CustomerID' => 'Customer ID',
-            'PetName' => 'Pet Name',
-            'Gender' => 'Gender',
-            'AgeYears' => 'Age Years',
-            'AgeMonths' => 'Age Months',
-            'HealthStatus' => 'Health Status',
+            'PetID' => '宠物编号',
+            'CustomerID' => '客户编号',
+            'PetName' => '宠物名称',
+            'Gender' => '性别',
+            'AgeYears' => '年龄（岁）',
+            'AgeMonths' => '年龄（月）',
+            'HealthStatus' => '健康状况',
         ];
     }
 

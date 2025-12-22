@@ -15,20 +15,20 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin(); ?>
 
     <?php if (!$model->isNewRecord): ?>
-        <?= $form->field($model, 'PetID')->textInput(['readonly' => true]) ?>
+        <?= $form->field($model, 'PetID')->textInput(['readonly' => true])->label('宠物编号') ?>
     <?php endif; ?>
 
-    <?= $form->field($model, 'CustomerID')->textInput() ?>
+    <?= $form->field($model, 'CustomerID')->textInput()->label('客户编号') ?>
 
-    <?= $form->field($model, 'PetName')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'PetName')->textInput(['maxlength' => true])->label('宠物名称') ?>
 
-    <?= $form->field($model, 'Gender')->dropDownList([ '公' => '公', '母' => '母', ], ['prompt' => '选择性别']) ?>
+    <?= $form->field($model, 'Gender')->dropDownList([ '公' => '公', '母' => '母', ], ['prompt' => '选择性别'])->label('性别') ?>
 
-    <?= $form->field($model, 'AgeYears')->textInput(['type' => 'number', 'min' => 0]) ?>
+    <?= $form->field($model, 'AgeYears')->textInput(['type' => 'number', 'min' => 0])->label('年龄（岁）') ?>
 
-    <?= $form->field($model, 'AgeMonths')->textInput(['type' => 'number', 'min' => 0, 'max' => 11]) ?>
+    <?= $form->field($model, 'AgeMonths')->textInput(['type' => 'number', 'min' => 0, 'max' => 11])->label('年龄（月）') ?>
 
-    <?= $form->field($model, 'HealthStatus')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'HealthStatus')->textInput(['maxlength' => true])->label('健康状况') ?>
 
     <?php if ($type === 'cat' && $cat): ?>
         <h4>猫信息</h4>
@@ -53,7 +53,7 @@ use yii\widgets\ActiveForm;
     <?php endif; ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

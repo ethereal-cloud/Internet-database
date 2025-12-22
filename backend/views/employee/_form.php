@@ -12,22 +12,22 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'EmployeeID')->textInput() ?>
+    <?= $form->field($model, 'EmployeeID')->textInput()->label('员工编号') ?>
 
-    <?= $form->field($model, 'user_id')->textInput() ?>
+    <?= $form->field($model, 'user_id')->textInput()->label('用户ID') ?>
 
-    <?= $form->field($model, 'Name')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'Name')->textInput(['maxlength' => true])->label('姓名') ?>
 
-    <?= $form->field($model, 'Gender')->dropDownList([ '男' => '男', '女' => '女', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'Gender')->dropDownList([ '男' => '男', '女' => '女', ], ['prompt' => '选择性别'])->label('性别') ?>
 
-    <?= $form->field($model, 'Position')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'Position')->textInput(['maxlength' => true])->label('职位') ?>
 
-    <?= $form->field($model, 'Contact')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'Contact')->textInput(['maxlength' => true])->label('联系方式') ?>
 
-    <?= $form->field($model, 'HireDate')->textInput() ?>
+    <?= $form->field($model, 'HireDate')->textInput()->label('入职日期') ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

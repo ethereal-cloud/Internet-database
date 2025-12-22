@@ -43,9 +43,9 @@ class Dog extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'PetID' => 'Pet ID',
-            'DogBreedType' => 'Dog Breed Type',
-            'TrainingLevel' => 'Training Level',
+            'PetID' => '宠物编号',
+            'DogBreedType' => '犬型',
+            'TrainingLevel' => '训练水平',
         ];
     }
 

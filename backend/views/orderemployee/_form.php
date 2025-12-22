@@ -12,12 +12,12 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'OrderID')->textInput() ?>
+    <?= $form->field($model, 'OrderID')->textInput()->label('订单编号') ?>
 
-    <?= $form->field($model, 'EmployeeID')->textInput() ?>
+    <?= $form->field($model, 'EmployeeID')->textInput()->label('员工编号') ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

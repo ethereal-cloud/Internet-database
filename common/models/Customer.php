@@ -51,13 +51,13 @@ class Customer extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'CustomerID' => 'Customer ID',
-            'user_id' => 'User ID',
-            'Name' => 'Name',
-            'Gender' => 'Gender',
-            'Contact' => 'Contact',
-            'Address' => 'Address',
-            'MemberLevel' => 'Member Level',
+            'CustomerID' => '客户编号',
+            'user_id' => '用户ID',
+            'Name' => '姓名',
+            'Gender' => '性别',
+            'Contact' => '联系方式',
+            'Address' => '地址',
+            'MemberLevel' => '会员等级',
         ];
     }
 

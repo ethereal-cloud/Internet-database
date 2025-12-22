@@ -12,24 +12,24 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'OrderID')->textInput() ?>
+    <?= $form->field($model, 'OrderID')->textInput()->label('订单编号') ?>
 
-    <?= $form->field($model, 'CustomerID')->textInput() ?>
+    <?= $form->field($model, 'CustomerID')->textInput()->label('客户编号') ?>
 
-    <?= $form->field($model, 'PetID')->textInput() ?>
+    <?= $form->field($model, 'PetID')->textInput()->label('宠物编号') ?>
 
-    <?= $form->field($model, 'ServiceID')->textInput() ?>
+    <?= $form->field($model, 'ServiceID')->textInput()->label('服务编号') ?>
 
-    <?= $form->field($model, 'StartTime')->textInput() ?>
+    <?= $form->field($model, 'StartTime')->textInput()->label('开始时间') ?>
 
-    <?= $form->field($model, 'EndTime')->textInput() ?>
+    <?= $form->field($model, 'EndTime')->textInput()->label('结束时间') ?>
 
-    <?= $form->field($model, 'OrderStatus')->dropDownList([ '未支付' => '未支付', '已支付' => '已支付', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'OrderStatus')->dropDownList([ '未支付' => '未支付', '已支付' => '已支付', ], ['prompt' => '选择状态'])->label('订单状态') ?>
 
-    <?= $form->field($model, 'PaymentAmount')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'PaymentAmount')->textInput(['maxlength' => true])->label('支付金额') ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

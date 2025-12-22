@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\PetSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Pets';
+$this->title = '宠物列表';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="pet-index">
@@ -20,7 +20,6 @@ $this->params['breadcrumbs'][] = $this->title;
     </p>
 
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -33,23 +32,21 @@ $this->params['breadcrumbs'][] = $this->title;
             'PetName',
             'Gender',
             'AgeYears',
-            //'AgeMonths',
-            //'HealthStatus',
 
             [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
                     'update' => function ($url, $model, $key) {
                         $type = $model->cat ? 'cat' : ($model->dog ? 'dog' : 'cat');
-                        return Html::a('Update', ['update', 'id' => $model->PetID, 'type' => $type]);
+                        return Html::a('编辑', ['update', 'id' => $model->PetID, 'type' => $type]);
                     },
                     'view' => function ($url, $model, $key) {
-                        return Html::a('View', ['view', 'id' => $model->PetID]);
+                        return Html::a('查看', ['view', 'id' => $model->PetID]);
                     },
                     'delete' => function ($url, $model, $key) {
-                        return Html::a('Delete', ['delete', 'id' => $model->PetID], [
+                        return Html::a('删除', ['delete', 'id' => $model->PetID], [
                             'data' => [
-                                'confirm' => 'Are you sure you want to delete this item?',
+                                'confirm' => '确认删除该宠物？',
                                 'method' => 'post',
                             ],
                         ]);

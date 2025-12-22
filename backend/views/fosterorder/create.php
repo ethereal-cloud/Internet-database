@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model common\models\Fosterorder */
 
-$this->title = 'Create Fosterorder';
-$this->params['breadcrumbs'][] = ['label' => 'Fosterorders', 'url' => ['index']];
+$this->title = '新增订单';
+$this->params['breadcrumbs'][] = ['label' => '订单列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="fosterorder-create">

@@ -45,11 +45,11 @@ class Fosterservice extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'ServiceID' => 'Service ID',
-            'ServiceType' => 'Service Type',
-            'PetCategory' => 'Pet Category',
-            'Price' => 'Price',
-            'Duration' => 'Duration',
+            'ServiceID' => '服务编号',
+            'ServiceType' => '服务类型',
+            'PetCategory' => '适用宠物',
+            'Price' => '价格',
+            'Duration' => '持续天数',
         ];
     }
 

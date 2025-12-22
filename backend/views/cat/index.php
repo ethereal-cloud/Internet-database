@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\CatSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Cats';
+$this->title = '猫信息';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="cat-index">
@@ -15,7 +15,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Cat', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('新增猫', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php Pjax::begin(); ?>
@@ -31,7 +31,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'FurLength',
             'Personality',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->PetID]),
+                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->PetID]),
+                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->PetID],[
+                        'data'=>['confirm'=>'确认删除该记录？','method'=>'post']
+                    ]),
+                ],
+            ],
         ],
     ]); ?>
 

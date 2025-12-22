@@ -9,7 +9,7 @@ use yii\helpers\Html;
 /* @var $type string */
 
 $this->title = $type === 'dog' ? '新增狗' : '新增猫';
-$this->params['breadcrumbs'][] = ['label' => 'Pets', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '宠物列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="pet-create">

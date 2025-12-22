@@ -7,22 +7,14 @@ use yii\widgets\Pjax;
 /* @var $searchModel backend\models\FosterserviceSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Fosterservices';
+$this->title = '服务列表';
 $this->params['breadcrumbs'][] = $this->title;
-$isAdmin = (Yii::$app->user->identity->role ?? null) === 'admin';
 ?>
 <div class="fosterservice-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?php if ($isAdmin): ?>
-        <p>
-            <?= Html::a('Create Fosterservice', ['create'], ['class' => 'btn btn-success']) ?>
-        </p>
-    <?php endif; ?>
-
     <?php Pjax::begin(); ?>
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -35,7 +27,6 @@ $isAdmin = (Yii::$app->user->identity->role ?? null) === 'admin';
             'PetCategory',
             'Price',
             'Duration',
-            ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
 

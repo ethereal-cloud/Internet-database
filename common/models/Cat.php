@@ -44,9 +44,9 @@ class Cat extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'PetID' => 'Pet ID',
-            'FurLength' => 'Fur Length',
-            'Personality' => 'Personality',
+            'PetID' => '宠物编号',
+            'FurLength' => '毛长',
+            'Personality' => '性格',
         ];
     }
 

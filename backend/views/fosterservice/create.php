@@ -5,8 +5,8 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model common\models\Fosterservice */
 
-$this->title = 'Create Fosterservice';
-$this->params['breadcrumbs'][] = ['label' => 'Fosterservices', 'url' => ['index']];
+$this->title = '新增服务';
+$this->params['breadcrumbs'][] = ['label' => '服务列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="fosterservice-create">

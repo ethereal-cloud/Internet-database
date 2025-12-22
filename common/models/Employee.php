@@ -52,13 +52,13 @@ class Employee extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'EmployeeID' => 'Employee ID',
-            'user_id' => 'User ID',
-            'Name' => 'Name',
-            'Gender' => 'Gender',
-            'Position' => 'Position',
-            'Contact' => 'Contact',
-            'HireDate' => 'Hire Date',
+            'EmployeeID' => '员工编号',
+            'user_id' => '用户ID',
+            'Name' => '姓名',
+            'Gender' => '性别',
+            'Position' => '职位',
+            'Contact' => '联系方式',
+            'HireDate' => '入职日期',
         ];
     }
 

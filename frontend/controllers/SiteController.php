@@ -92,7 +92,8 @@ class SiteController extends Controller
                 ->alias('p')
                 ->where(['p.CustomerID' => $customer->CustomerID])
                 ->with(['cat', 'dog'])
-                ->limit(5)
+                ->orderBy(['p.PetID' => SORT_DESC])
+                ->limit(2)
                 ->all();
 
             // 最近订单
@@ -100,7 +101,7 @@ class SiteController extends Controller
                 ->where(['CustomerID' => $customer->CustomerID])
                 ->with(['pet', 'service', 'employees'])
                 ->orderBy(['StartTime' => SORT_DESC])
-                ->limit(5)
+                ->limit(2)
                 ->all();
 
             // 可选服务展示

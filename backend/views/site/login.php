@@ -81,7 +81,7 @@ $this->params['breadcrumbs'][] = $this->title;
             
             <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
                 <p>⚠️ 仅限管理员和员工登录</p>
-                <p>客户请访问：<?= Html::a('客户端登录', ['/frontend/web/index.php?r=site/login'], ['style' => 'color: #667eea;']) ?></p>
+                <p>客户请访问：<?= Html::a('客户端登录', Yii::$app->params['frontendBaseUrl'] . '/index.php?r=site/login', ['style' => 'color: #667eea;']) ?></p>
             </div>
 
         <?php ActiveForm::end(); ?>

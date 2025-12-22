@@ -351,8 +351,21 @@ class SiteController extends Controller
     {
         $customer = $this->requireCustomer();
         $pet = $this->findOwnPet($id, $customer->CustomerID);
-        $pet->delete();
-        Yii::$app->session->setFlash('success', '宠物已删除。');
+
+        // 若存在关联订单，直接拦截
+        $hasOrders = Fosterorder::find()->where(['PetID' => $pet->PetID])->exists();
+        if ($hasOrders) {
+            Yii::$app->session->setFlash('error', '该宠物存在寄养订单，无法删除。');
+            return $this->redirect(['pets']);
+        }
+
+        try {
+            $pet->delete();
+            Yii::$app->session->setFlash('success', '宠物已删除。');
+        } catch (\Throwable $e) {
+            Yii::$app->session->setFlash('error', '删除失败：请先删除关联数据或联系管理员。');
+        }
+
         return $this->redirect(['pets']);
     }
 

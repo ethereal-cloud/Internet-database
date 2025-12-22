@@ -36,13 +36,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="panel-heading">修改可编辑信息</div>
                 <div class="panel-body">
                     <?php $form = ActiveForm::begin(); ?>
-                        <?= $form->field($customer, 'Name')->textInput(['maxlength' => true]) ?>
+                        <?= $form->field($customer, 'Name')->textInput(['maxlength' => true])->label('姓名') ?>
                         <?= $form->field($customer, 'Gender')->dropDownList([
                             '男' => '男',
                             '女' => '女',
-                        ], ['prompt' => '选择性别']) ?>
-                        <?= $form->field($customer, 'Contact')->textInput(['maxlength' => true]) ?>
-                        <?= $form->field($customer, 'Address')->textInput(['maxlength' => true]) ?>
+                        ], ['prompt' => '选择性别'])->label('性别') ?>
+                        <?= $form->field($customer, 'Contact')->textInput(['maxlength' => true])->label('联系方式') ?>
+                        <?= $form->field($customer, 'Address')->textInput(['maxlength' => true])->label('地址') ?>
                         <div class="form-group">
                             <?= Html::submitButton('保存修改', ['class' => 'btn btn-success']) ?>
                             <?= Html::a('重置', ['profile'], ['class' => 'btn btn-default']) ?>

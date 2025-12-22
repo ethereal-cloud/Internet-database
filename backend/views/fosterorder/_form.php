@@ -12,7 +12,7 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'OrderID')->textInput()->label('订单编号') ?>
+    <?= $form->field($model, 'OrderID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('订单编号（自动生成）') ?>
 
     <?= $form->field($model, 'CustomerID')->textInput()->label('客户编号') ?>
 

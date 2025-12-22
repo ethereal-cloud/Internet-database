@@ -14,9 +14,7 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?php if (!$model->isNewRecord): ?>
-        <?= $form->field($model, 'PetID')->textInput(['readonly' => true])->label('宠物编号') ?>
-    <?php endif; ?>
+    <?= $form->field($model, 'PetID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label($model->isNewRecord ? '宠物编号（自动生成）' : '宠物编号') ?>
 
     <?= $form->field($model, 'CustomerID')->textInput()->label('客户编号') ?>
 

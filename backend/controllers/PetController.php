@@ -104,6 +104,10 @@ class PetController extends Controller
         $user = Yii::$app->user->identity;
         $cat = $type === 'cat' ? new Cat() : null;
         $dog = $type === 'dog' ? new Dog() : null;
+        
+        // 自动生成PetID
+        $maxId = Pet::find()->max('PetID');
+        $model->PetID = $maxId ? ($maxId + 1) : 300001;
 
         if ($model->load(Yii::$app->request->post())) {
             // customer 只能给自己创建宠物
@@ -113,8 +117,7 @@ class PetController extends Controller
             }
             // admin 可以为任何客户创建
 
-            // 生成 PetID
-            $maxId = Pet::find()->max('PetID');
+            // 防止PetID被修改
             $model->PetID = $maxId ? ($maxId + 1) : 300001;
 
             $safe = ['CustomerID', 'PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus', 'PetID'];

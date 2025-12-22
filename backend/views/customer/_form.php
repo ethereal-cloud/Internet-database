@@ -12,9 +12,9 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'CustomerID')->textInput()->label('客户编号') ?>
+    <?= $form->field($model, 'CustomerID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('客户编号（自动生成）') ?>
 
-    <?= $form->field($model, 'user_id')->textInput()->label('用户ID') ?>
+    <?= $form->field($model, 'user_id')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('用户ID（自动生成）') ?>
 
     <?= $form->field($model, 'Name')->textInput(['maxlength' => true])->label('姓名') ?>
 

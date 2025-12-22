@@ -102,9 +102,22 @@ class EmployeeController extends Controller
     public function actionCreate()
     {
         $model = new Employee();
+        
+        // 自动生成EmployeeID
+        $maxEmployeeId = Employee::find()->max('EmployeeID');
+        $model->EmployeeID = $maxEmployeeId ? $maxEmployeeId + 1 : 200001;
+        
+        // 自动生成user_id
+        $maxUserId = \common\models\User::find()->max('id');
+        $model->user_id = $maxUserId ? $maxUserId + 1 : 1;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->EmployeeID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // 防止ID被修改
+            $model->EmployeeID = $maxEmployeeId ? $maxEmployeeId + 1 : 200001;
+            $model->user_id = $maxUserId ? $maxUserId + 1 : 1;
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->EmployeeID]);
+            }
         }
 
         return $this->render('create', [

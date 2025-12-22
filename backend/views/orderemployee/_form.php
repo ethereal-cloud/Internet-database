@@ -12,9 +12,9 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'OrderID')->textInput()->label('订单编号') ?>
+    <?= $form->field($model, 'OrderID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('订单编号') ?>
 
-    <?= $form->field($model, 'EmployeeID')->textInput()->label('员工编号') ?>
+    <?= $form->field($model, 'EmployeeID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('员工编号') ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>

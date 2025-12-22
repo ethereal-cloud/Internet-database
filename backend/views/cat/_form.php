@@ -12,7 +12,7 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'PetID')->textInput()->label('宠物编号') ?>
+    <?= $form->field($model, 'PetID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('宠物编号（关联）') ?>
 
     <?= $form->field($model, 'FurLength')->dropDownList([ '短毛' => '短毛', '中毛' => '中毛', '长毛' => '长毛', ], ['prompt' => '选择毛长'])->label('毛长') ?>
 

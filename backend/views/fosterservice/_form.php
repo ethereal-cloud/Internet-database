@@ -12,7 +12,7 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'ServiceID')->textInput()->label('服务编号') ?>
+    <?= $form->field($model, 'ServiceID')->textInput(['readonly' => true, 'style' => 'background-color: #f5f5f5;'])->label('服务编号（自动生成）') ?>
 
     <?= $form->field($model, 'ServiceType')->dropDownList([ '普通寄养' => '普通寄养', '豪华寄养' => '豪华寄养', ], ['prompt' => '选择服务类型'])->label('服务类型') ?>
 

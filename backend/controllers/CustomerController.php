@@ -99,9 +99,22 @@ class CustomerController extends Controller
     public function actionCreate()
     {
         $model = new Customer();
+        
+        // 自动生成CustomerID
+        $maxCustomerId = Customer::find()->max('CustomerID');
+        $model->CustomerID = $maxCustomerId ? $maxCustomerId + 1 : 100001;
+        
+        // 自动生成user_id
+        $maxUserId = \common\models\User::find()->max('id');
+        $model->user_id = $maxUserId ? $maxUserId + 1 : 1;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->CustomerID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // 防止ID被修改
+            $model->CustomerID = $maxCustomerId ? $maxCustomerId + 1 : 100001;
+            $model->user_id = $maxUserId ? $maxUserId + 1 : 1;
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->CustomerID]);
+            }
         }
 
         return $this->render('create', [

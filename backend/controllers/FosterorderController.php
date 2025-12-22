@@ -102,8 +102,14 @@ class FosterorderController extends Controller
     {
         $model = new Fosterorder();
         $user = Yii::$app->user->identity;
+        
+        // 自动生成OrderID
+        $maxId = Fosterorder::find()->max('OrderID');
+        $model->OrderID = $maxId ? $maxId + 1 : 1;
 
         if ($model->load(Yii::$app->request->post())) {
+            // 防止ID被修改
+            $model->OrderID = $maxId ? $maxId + 1 : 1;
             if ($user->role === 'customer') {
                 // 通过 user_id 反向查询获取 CustomerID
                 // 检查 PetID 是否属于当前客户

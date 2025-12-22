@@ -85,6 +85,11 @@ class SignupForm extends Model
         }
         
         $user = new User();
+        
+        // 自动生成user ID
+        $maxId = User::find()->max('id');
+        $user->id = $maxId ? $maxId + 1 : 1;
+        
         $user->username = $this->username;
         $user->email = $this->email;
         $user->role = $this->role; // 设置角色

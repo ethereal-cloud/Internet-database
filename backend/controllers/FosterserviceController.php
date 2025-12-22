@@ -99,9 +99,17 @@ class FosterserviceController extends Controller
     public function actionCreate()
     {
         $model = new Fosterservice();
+        
+        // 自动生成ServiceID
+        $maxId = Fosterservice::find()->max('ServiceID');
+        $model->ServiceID = $maxId ? $maxId + 1 : 1;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->ServiceID]);
+        if ($model->load(Yii::$app->request->post())) {
+            // 防止ID被修改
+            $model->ServiceID = $maxId ? $maxId + 1 : 1;
+            if ($model->save()) {
+                return $this->redirect(['view', 'id' => $model->ServiceID]);
+            }
         }
 
         return $this->render('create', [

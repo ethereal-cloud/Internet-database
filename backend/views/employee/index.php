@@ -14,8 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('新增员工', ['create'], ['class' => 'btn btn-success']) ?>
+    <p class="text-muted">
+        <i class="glyphicon glyphicon-info-sign"></i> 请通过前台注册流程（需要邀请码）创建新员工账户
     </p>
 
     <?php Pjax::begin(); ?>

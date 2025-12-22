@@ -26,9 +26,9 @@ class CustomerController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        // admin 增删改查
+                        // admin 只能查看、修改、删除，不能创建（需要通过注册流程）
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view', 'update', 'delete'],
                         'matchCallback' => function ($rule, $action) {
                             $user = Yii::$app->user->identity;
                             return $user && isset($user->role) && $user->role === 'admin';

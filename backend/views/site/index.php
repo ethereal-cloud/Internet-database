@@ -43,33 +43,29 @@ $cards = [
         'title' => '员工管理',
         'subtitle' => $isAdmin ? '员工档案与岗位维护' : '我的信息与联系方式',
         'desc' => $isAdmin
-            ? '统一管理员工信息、岗位与联系方式，确保服务安排准确有序。'
+            ? '统一管理员工信息、岗位与联系方式，确保服务安排准确有序。新员工请通过前台注册。'
             : '查看个人完整资料并仅可更新联系方式。',
-        'meta' => $isAdmin ? '权限：增删改查' : '权限：仅查看 / 修改联系方式',
+        'meta' => $isAdmin ? '权限：删改查（新增请注册）' : '权限：仅查看 / 修改联系方式',
         'actions' => $isAdmin ? [
             ['label' => '进入管理', 'url' => ['/employee/index'], 'class' => 'btn-primary'],
         ] : [
             ['label' => '我的信息', 'url' => ['/employee/view', 'id' => $employeeId], 'class' => 'btn-primary'],
             ['label' => '修改联系方式', 'url' => ['/employee/update', 'id' => $employeeId], 'class' => 'btn-ghost'],
         ],
-        'extra' => $isAdmin ? [
-            ['label' => '新增员工', 'url' => ['/employee/create'], 'class' => 'btn-ghost'],
-        ] : [],
+        'extra' => [],
         'accent' => 'accent-rose',
     ],
     [
         'title' => '顾客管理',
         'subtitle' => $isAdmin ? '顾客档案与服务记录' : '仅查看匹配订单的顾客',
         'desc' => $isAdmin
-            ? '查看顾客资料、服务历史与偏好，为精细化服务提供支撑。'
+            ? '查看顾客资料、服务历史与偏好，为精细化服务提供支撑。新顾客请通过前台注册。'
             : '仅可查看与你负责订单关联的顾客信息。',
-        'meta' => $isAdmin ? '权限：增删改查' : '权限：仅查看',
+        'meta' => $isAdmin ? '权限：删改查（新增请注册）' : '权限：仅查看',
         'actions' => [
             ['label' => $isAdmin ? '进入管理' : '查看列表', 'url' => ['/customer/index'], 'class' => 'btn-primary'],
         ],
-        'extra' => $isAdmin ? [
-            ['label' => '新增顾客', 'url' => ['/customer/create'], 'class' => 'btn-ghost'],
-        ] : [],
+        'extra' => [],
         'accent' => 'accent-sand',
     ],
     [

@@ -26,9 +26,9 @@ class EmployeeController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        // admin 全部允许
+                        // admin 只能查看、修改、删除，不能创建（需要通过注册流程）
                         'allow' => true,
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view', 'update', 'delete'],
                         'matchCallback' => function ($rule, $action) {
                             $user = Yii::$app->user->identity;
                             // user.role 字段已存在于数据库

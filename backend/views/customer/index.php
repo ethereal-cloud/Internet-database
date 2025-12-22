@@ -14,8 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('新增客户', ['create'], ['class' => 'btn btn-success']) ?>
+    <p class="text-muted">
+        <i class="glyphicon glyphicon-info-sign"></i> 请通过前台注册流程创建新客户账户
     </p>
 
     <?php Pjax::begin(); ?>

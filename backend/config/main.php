@@ -20,7 +20,8 @@ return [
             if (!in_array($role, ['admin', 'employee'])) {
                 // customer 或其他角色访问 backend，重定向到 frontend
                 Yii::$app->session->setFlash('error', '您没有权限访问管理后台。');
-                Yii::$app->response->redirect(['/frontend/web/index.php'])->send();
+                // 使用配置的 frontendBaseUrl 跳转到 frontend
+                Yii::$app->response->redirect(Yii::$app->params['frontendBaseUrl'] . '/index.php')->send();
                 Yii::$app->end();
             }
         }

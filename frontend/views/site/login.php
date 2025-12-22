@@ -100,7 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
             
             <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-                <p style="color: #999; font-size: 12px;">💼 内部员工请访问：<?= Html::a('管理后台登录', ['/backend/web/index.php?r=site/login'], ['style' => 'color: #764ba2;']) ?></p>
+                <p style="color: #999; font-size: 12px;">💼 内部员工请访问：<?= Html::a('管理后台登录', Yii::$app->params['backendBaseUrl'] . '/index.php?r=site/login', ['style' => 'color: #764ba2;']) ?></p>
             </div>
 
         <?php ActiveForm::end(); ?>

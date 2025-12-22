@@ -133,13 +133,15 @@ class SiteController extends Controller
             // 登录成功后检查角色
             $role = Yii::$app->user->identity->role ?? null;
             
-            // 如果是 admin 或 employee，跳转到 backend
-            if (in_array($role, ['admin', 'employee'])) {
-                return $this->redirectByRole();
+            // 前台只允许 customer 登录
+            if (!in_array($role, ['customer'])) {
+                Yii::$app->user->logout();
+                Yii::$app->session->setFlash('error', '该账号无法在客户端登录，请访问管理后台。');
+                return $this->render('login', ['model' => $model]);
             }
             
-            // customer 留在 frontend
-            return $this->redirectByRole();
+            // customer 登录成功，留在 frontend
+            return $this->goBack();
         } else {
             $model->password = '';
 

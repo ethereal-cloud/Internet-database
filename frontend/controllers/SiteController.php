@@ -8,6 +8,7 @@ use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
@@ -43,7 +44,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout', 'profile', 'pets', 'orders', 'services', 'pet-create', 'pet-update', 'pet-delete'],
+                        'actions' => ['logout', 'profile', 'pets', 'orders', 'services', 'pet-create', 'pet-update', 'pet-delete', 'order-create', 'order-pay'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -385,6 +386,130 @@ class SiteController extends Controller
             'customer' => $customer,
             'orders' => $orders,
         ]);
+    }
+
+    /**
+     * 创建订单（仅客户）
+     */
+    public function actionOrderCreate()
+    {
+        $customer = $this->requireCustomer();
+        $model = new Fosterorder();
+        $model->CustomerID = $customer->CustomerID;
+        $model->OrderStatus = '未支付'; // 默认未支付
+
+        if ($model->load(Yii::$app->request->post())) {
+            // 验证宠物是否属于当前客户
+            $pet = Pet::findOne(['PetID' => $model->PetID, 'CustomerID' => $customer->CustomerID]);
+            if (!$pet) {
+                Yii::$app->session->setFlash('error', '无效的宠物ID，请选择你自己的宠物。');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                ]);
+            }
+
+            // 验证宠物类型与服务类型是否匹配
+            $service = Fosterservice::findOne($model->ServiceID);
+            if (!$service) {
+                Yii::$app->session->setFlash('error', '无效的服务ID。');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                ]);
+            }
+
+            // 获取宠物类型
+            $petCategory = '';
+            if ($pet->cat) {
+                $petCategory = '猫';
+            } elseif ($pet->dog) {
+                $petCategory = $pet->dog->DogBreedType; // '大型犬', '中型犬', '小型犬'
+            }
+
+            // 检查宠物类型与服务类型是否匹配
+            if ($petCategory !== $service->PetCategory) {
+                Yii::$app->session->setFlash('error', '宠物类型与服务类型不匹配！宠物：' . $petCategory . '，服务：' . $service->PetCategory);
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                ]);
+            }
+
+            // 生成OrderID（查询当前最大值 +1）
+            $maxOrderId = Fosterorder::find()->max('OrderID');
+            $model->OrderID = $maxOrderId ? $maxOrderId + 1 : 1;
+
+            // 保存订单
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', '订单创建成功！订单号：' . $model->OrderID);
+                return $this->redirect(['orders']);
+            } else {
+                Yii::$app->session->setFlash('error', '订单创建失败，请检查输入。');
+            }
+        }
+
+        // 获取客户的宠物列表
+        $pets = Pet::find()
+            ->where(['CustomerID' => $customer->CustomerID])
+            ->with(['cat', 'dog']) // 需要加载关联数据用于类型判断
+            ->all();
+
+        // 获取所有服务
+        $services = Fosterservice::find()->all();
+
+        return $this->render('order-create', [
+            'model' => $model,
+            'customer' => $customer,
+            'pets' => $pets,
+            'services' => $services,
+        ]);
+    }
+
+    /**
+     * 支付订单（仅客户）
+     */
+    public function actionOrderPay($id)
+    {
+        $customer = $this->requireCustomer();
+        
+        // 验证订单属于当前客户
+        $order = Fosterorder::findOne(['OrderID' => $id, 'CustomerID' => $customer->CustomerID]);
+        
+        if (!$order) {
+            throw new NotFoundHttpException('订单不存在或无权访问。');
+        }
+
+        // 检查是否已支付
+        if ($order->OrderStatus === '已支付') {
+            Yii::$app->session->setFlash('info', '该订单已经支付完成。');
+            return $this->redirect(['orders']);
+        }
+
+        // Ajax请求：模拟支付
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            
+            // 模拟支付延迟（可选）
+            // sleep(1);
+            
+            // 更新支付状态
+            $order->OrderStatus = '已支付';
+            if ($order->save(true, ['OrderStatus'])) {
+                return [
+                    'success' => true,
+                    'message' => '支付成功！订单状态已更新。',
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => '支付失败，请稍后重试。',
+                ];
+            }
+        }
+
+        // 非 Ajax 请求，跳转到订单列表
+        return $this->redirect(['orders']);
     }
 
     /**

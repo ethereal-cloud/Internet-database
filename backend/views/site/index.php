@@ -34,7 +34,8 @@ $cards = [
             ['label' => $isAdmin ? '进入管理' : '查看列表', 'url' => ['/pet/index'], 'class' => 'btn-primary'],
         ],
         'extra' => $isAdmin ? [
-            ['label' => '新增宠物', 'url' => ['/pet/create'], 'class' => 'btn-ghost'],
+            ['label' => '新增猫', 'url' => ['/pet/create', 'type' => 'cat'], 'class' => 'btn-ghost'],
+            ['label' => '新增狗', 'url' => ['/pet/create', 'type' => 'dog'], 'class' => 'btn-ghost'],
         ] : [],
         'accent' => 'accent-amber',
     ],
@@ -118,7 +119,6 @@ $cards = [
         </nav>
         <div class="admin-actions">
             <div class="role-chip"><?= Html::encode($roleLabel) ?>专用</div>
-            <?= Html::a('前台首页', ['/frontend/web/index.php'], ['class' => 'action-link']) ?>
         </div>
     </header>
 

@@ -4,6 +4,8 @@ namespace backend\controllers;
 
 use Yii;
 use common\models\Pet;
+use common\models\Cat;
+use common\models\Dog;
 use backend\models\PetSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -96,10 +98,12 @@ class PetController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($type = 'cat')
     {
         $model = new Pet();
         $user = Yii::$app->user->identity;
+        $cat = $type === 'cat' ? new Cat() : null;
+        $dog = $type === 'dog' ? new Dog() : null;
 
         if ($model->load(Yii::$app->request->post())) {
             // customer 只能给自己创建宠物
@@ -108,14 +112,33 @@ class PetController extends Controller
                 $model->CustomerID = $user->getCustomerId();
             }
             // admin 可以为任何客户创建
-            
-            if ($model->save()) {
-                return $this->redirect(['view', 'id' => $model->PetID]);
+
+            // 生成 PetID
+            $maxId = Pet::find()->max('PetID');
+            $model->PetID = $maxId ? ($maxId + 1) : 300001;
+
+            $safe = ['CustomerID', 'PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus', 'PetID'];
+
+            if ($type === 'cat' && $cat && $cat->load(Yii::$app->request->post()) && $model->save(true, $safe)) {
+                $cat->PetID = $model->PetID;
+                if ($cat->save()) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
+            } elseif ($type === 'dog' && $dog && $dog->load(Yii::$app->request->post()) && $model->save(true, $safe)) {
+                $dog->PetID = $model->PetID;
+                if ($dog->save()) {
+                    return $this->redirect(['view', 'id' => $model->PetID]);
+                }
             }
+
+            Yii::$app->session->setFlash('error', '保存失败，请检查输入。');
         }
 
         return $this->render('create', [
             'model' => $model,
+            'cat' => $cat,
+            'dog' => $dog,
+            'type' => $type,
         ]);
     }
 
@@ -126,29 +149,45 @@ class PetController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public function actionUpdate($id, $type = null)
     {
         $model = $this->findModel($id);
         $user = Yii::$app->user->identity;
+        $type = $type ?: ($model->cat ? 'cat' : ($model->dog ? 'dog' : 'cat'));
+        $cat = $model->cat ?: ($type === 'cat' ? new Cat() : null);
+        $dog = $model->dog ?: ($type === 'dog' ? new Dog() : null);
 
         if ($model->load(Yii::$app->request->post())) {
             if ($user->role === 'customer') {
                 // customer 不能修改 PetID, CustomerID
-                $safeAttributes = array_diff($model->attributes(), ['PetID', 'CustomerID']);
-                if ($model->save(true, $safeAttributes)) {
-                    return $this->redirect(['view', 'id' => $model->PetID]);
-                }
+                $safeAttributes = ['PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus'];
             } else if ($user->role === 'admin') {
                 // admin 不能修改 PetID
-                $safeAttributes = array_diff($model->attributes(), ['PetID']);
-                if ($model->save(true, $safeAttributes)) {
-                    return $this->redirect(['view', 'id' => $model->PetID]);
-                }
+                $safeAttributes = ['CustomerID', 'PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus'];
+            }
+
+            $petSaved = $model->save(true, $safeAttributes);
+            $relSaved = true;
+            if ($type === 'cat' && $cat) {
+                $cat->load(Yii::$app->request->post());
+                $cat->PetID = $model->PetID;
+                $relSaved = $cat->save();
+            } elseif ($type === 'dog' && $dog) {
+                $dog->load(Yii::$app->request->post());
+                $dog->PetID = $model->PetID;
+                $relSaved = $dog->save();
+            }
+
+            if ($petSaved && $relSaved) {
+                return $this->redirect(['view', 'id' => $model->PetID]);
             }
         }
 
         return $this->render('update', [
             'model' => $model,
+            'cat' => $cat,
+            'dog' => $dog,
+            'type' => $type,
         ]);
     }
 

@@ -72,6 +72,7 @@ class FosterorderController extends Controller
     {
         $searchModel = new FosterorderSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->query->with(['pet', 'service', 'employees']);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -223,6 +224,7 @@ class FosterorderController extends Controller
             // 通过 user_id 反向查询获取 CustomerID
             $model = Fosterorder::find()
                 ->where(['OrderID' => $id])
+                ->with(['pet', 'service', 'employees'])
                 ->andWhere(['CustomerID' => $user->getCustomerId()])
                 ->one();
         } else if ($user->role === 'employee') {
@@ -232,11 +234,12 @@ class FosterorderController extends Controller
                 ->alias('o')
                 ->innerJoin('order_employee oe', 'oe.OrderID = o.OrderID')
                 ->where(['o.OrderID' => $id])
+                ->with(['pet', 'service', 'employees'])
                 ->andWhere(['oe.EmployeeID' => $user->getEmployeeId()])
                 ->one();
         } else {
             // admin 可以查看所有
-            $model = Fosterorder::findOne($id);
+            $model = Fosterorder::find()->with(['pet', 'service', 'employees'])->where(['OrderID' => $id])->one();
         }
         
         if ($model !== null) {

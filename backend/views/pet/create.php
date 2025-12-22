@@ -4,8 +4,11 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\Pet */
+/* @var $cat common\models\Cat|null */
+/* @var $dog common\models\Dog|null */
+/* @var $type string */
 
-$this->title = 'Create Pet';
+$this->title = $type === 'dog' ? '新增狗' : '新增猫';
 $this->params['breadcrumbs'][] = ['label' => 'Pets', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -15,6 +18,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
+        'cat' => $cat,
+        'dog' => $dog,
+        'type' => $type,
     ]) ?>
 
 </div>

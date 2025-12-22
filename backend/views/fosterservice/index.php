@@ -35,24 +35,6 @@ $isAdmin = (Yii::$app->user->identity->role ?? null) === 'admin';
             'PetCategory',
             'Price',
             'Duration',
-            [
-                'label' => '关联订单',
-                'format' => 'raw',
-                'value' => function ($model) {
-                    if (empty($model->fosterorders)) {
-                        return '<span class="text-muted">暂无关联订单</span>';
-                    }
-                    $lines = [];
-                    foreach ($model->fosterorders as $order) {
-                        $lines[] = '订单 #' . Html::encode($order->OrderID)
-                            . ' / 客户 ' . Html::encode($order->CustomerID)
-                            . ' / 宠物 ' . Html::encode($order->PetID)
-                            . ' / ' . Html::encode($order->OrderStatus);
-                    }
-                    return implode('<br>', $lines);
-                },
-            ],
-
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

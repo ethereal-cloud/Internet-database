@@ -501,9 +501,11 @@ class SiteController extends Controller
             }
 
             // 验证员工选择
-            $employeeIds = Yii::$app->request->post('employeeIds', []);
-            if (empty($employeeIds)) {
-                Yii::$app->session->setFlash('error', '请选择员工！');
+            $caregiverId = Yii::$app->request->post('caregiverId'); // 护理员
+            $luxuryStaffIds = Yii::$app->request->post('luxuryStaffIds', []); // 豪华服务其他员工
+            
+            if (!$caregiverId) {
+                Yii::$app->session->setFlash('error', '请选择护理员！');
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
@@ -512,13 +514,10 @@ class SiteController extends Controller
                 ]);
             }
 
-            // 根据服务类型验证员工数量
-            $requiredCount = ($service->ServiceType === '豪华寄养') ? 3 : 1;
-            if (count($employeeIds) !== $requiredCount) {
-                Yii::$app->session->setFlash('error', 
-                    ($service->ServiceType === '豪华寄养' ? '豪华服务必须选择3个员工！' : '普通服务只能选择1个员工！') .
-                    '（当前选择了' . count($employeeIds) . '个）'
-                );
+            // 验证护理员职位
+            $caregiver = \common\models\Employee::findOne(['EmployeeID' => $caregiverId]);
+            if (!$caregiver) {
+                Yii::$app->session->setFlash('error', '无效的护理员ID。');
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
@@ -527,18 +526,59 @@ class SiteController extends Controller
                 ]);
             }
 
-            // 验证员工ID是否有效
-            $validEmployees = \common\models\Employee::find()
-                ->where(['EmployeeID' => $employeeIds])
-                ->count();
-            if ($validEmployees !== count($employeeIds)) {
-                Yii::$app->session->setFlash('error', '选择的员工中有无效的ID。');
+            if ($caregiver->Position !== '护理员') {
+                Yii::$app->session->setFlash('error', '所选员工不是护理员！当前职位：' . $caregiver->Position);
                 return $this->render('order-create', [
                     'model' => $model,
                     'customer' => $customer,
                     'pets' => $pets,
                     'services' => $services,
                 ]);
+            }
+
+            // 合并所有员工ID
+            $employeeIds = [$caregiverId];
+
+            // 根据服务类型验证豪华服务员工
+            if ($service->ServiceType === '豪华寄养') {
+                if (count($luxuryStaffIds) !== 2) {
+                    Yii::$app->session->setFlash('error', '豪华服务必须额外选择2个其他职位员工！（当前选择了' . count($luxuryStaffIds) . '个）');
+                    return $this->render('order-create', [
+                        'model' => $model,
+                        'customer' => $customer,
+                        'pets' => $pets,
+                        'services' => $services,
+                    ]);
+                }
+
+                // 验证其他员工不能是护理员
+                $luxuryStaff = \common\models\Employee::find()
+                    ->where(['EmployeeID' => $luxuryStaffIds])
+                    ->all();
+
+                if (count($luxuryStaff) !== 2) {
+                    Yii::$app->session->setFlash('error', '选择的员工中有无效的ID。');
+                    return $this->render('order-create', [
+                        'model' => $model,
+                        'customer' => $customer,
+                        'pets' => $pets,
+                        'services' => $services,
+                    ]);
+                }
+
+                foreach ($luxuryStaff as $staff) {
+                    if ($staff->Position === '护理员') {
+                        Yii::$app->session->setFlash('error', '豪华服务的其他员工不能是护理员！员工：' . $staff->Name . '（#' . $staff->EmployeeID . '）');
+                        return $this->render('order-create', [
+                            'model' => $model,
+                            'customer' => $customer,
+                            'pets' => $pets,
+                            'services' => $services,
+                        ]);
+                    }
+                }
+
+                $employeeIds = array_merge($employeeIds, $luxuryStaffIds);
             }
 
             // 生成OrderID（查询当前最大值 +1）

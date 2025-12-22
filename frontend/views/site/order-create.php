@@ -51,12 +51,20 @@ $this->params['breadcrumbs'][] = $this->title;
             ]
         )->label('选择服务') ?>
 
-        <div class="form-group">
-            <label class="control-label">选择员工</label>
-            <select name="employeeIds[]" id="employee-select" class="form-control" multiple size="5" disabled>
+        <div class="form-group" id="caregiver-group" style="display: none;">
+            <label class="control-label">选择护理员 <span class="text-danger">*</span></label>
+            <select name="caregiverId" id="caregiver-select" class="form-control" disabled>
                 <option value="" disabled selected hidden>请先选择服务</option>
             </select>
-            <p class="help-block" id="employee-hint" style="color: #999;">请先选择服务</p>
+            <p class="help-block" id="caregiver-hint" style="color: #999;">请先选择服务</p>
+        </div>
+
+        <div class="form-group" id="luxury-staff-group" style="display: none;">
+            <label class="control-label">选择豪华服务职员 <span class="text-danger">*</span></label>
+            <select name="luxuryStaffIds[]" id="luxury-staff-select" class="form-control" multiple size="5" disabled>
+                <option value="" disabled selected hidden>请先选择护理员</option>
+            </select>
+            <p class="help-block" id="luxury-staff-hint" style="color: #999;">请先选择护理员</p>
         </div>
 
         <?= $form->field($model, 'StartTime')->input('datetime-local', [
@@ -96,20 +104,36 @@ $this->params['breadcrumbs'][] = $this->title;
 document.addEventListener('DOMContentLoaded', function() {
     var petSelect = document.querySelector('select[name="Fosterorder[PetID]"]');
     var serviceSelect = document.getElementById('service-select');
-    var employeeSelect = document.getElementById('employee-select');
-    var employeeHint = document.getElementById('employee-hint');
+    var caregiverGroup = document.getElementById('caregiver-group');
+    var caregiverSelect = document.getElementById('caregiver-select');
+    var caregiverHint = document.getElementById('caregiver-hint');
+    var luxuryStaffGroup = document.getElementById('luxury-staff-group');
+    var luxuryStaffSelect = document.getElementById('luxury-staff-select');
+    var luxuryStaffHint = document.getElementById('luxury-staff-hint');
     var startTimeInput = document.querySelector('input[name="Fosterorder[StartTime]"]');
     var endTimeInput = document.querySelector('input[name="Fosterorder[EndTime]"]');
     var paymentAmountInput = document.getElementById('payment-amount');
     var timeErrorDiv = document.getElementById('time-error');
     var submitButton = document.querySelector('button[type="submit"]');
     
-    // 员工数据：{employeeId: name}
-    var employees = <?= json_encode(ArrayHelper::map(
-        \common\models\Employee::find()->all(),
-        'EmployeeID',
-        function($emp) { return $emp->Name . ' (#' . $emp->EmployeeID . ')'; }
-    )) ?>;
+    // 员工数据：{employeeId: {name, position}}
+    var employees = <?= json_encode(array_map(function($emp) {
+        return [
+            'name' => $emp->Name . ' (#' . $emp->EmployeeID . ')',
+            'position' => $emp->Position,
+        ];
+    }, ArrayHelper::index(\common\models\Employee::find()->all(), 'EmployeeID'))) ?>;
+    
+    // 护理员列表
+    var caregivers = {};
+    var otherStaff = {};
+    Object.keys(employees).forEach(function(empId) {
+        if (employees[empId].position === '护理员') {
+            caregivers[empId] = employees[empId].name;
+        } else {
+            otherStaff[empId] = employees[empId].name;
+        }
+    });
     
     // 验证时间的函数
     function validateTime() {
@@ -259,56 +283,123 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (serviceId && serviceData[serviceId]) {
             var service = serviceData[serviceId];
-            var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
             
-            // 启用员工选择
-            employeeSelect.disabled = false;
-            employeeSelect.innerHTML = '';
-            
-            // 添加所有员工选项
-            Object.keys(employees).forEach(function(empId) {
-                var option = document.createElement('option');
-                option.value = empId;
-                option.textContent = employees[empId];
-                employeeSelect.appendChild(option);
-            });
-            
-            // 更新提示信息
-            if (service.serviceType === '豪华寄养') {
-                employeeHint.textContent = '豪华服务必须选择3个员工（按住Ctrl键多选）';
-                employeeHint.style.color = '#d9534f';
-            } else {
-                employeeHint.textContent = '普通服务只能选择1个员工';
-                employeeHint.style.color = '#999';
+            if (service.serviceType === '普通寄养') {
+                // 普通服务：只显示护理员选择框
+                caregiverGroup.style.display = 'block';
+                luxuryStaffGroup.style.display = 'none';
+                caregiverSelect.disabled = false;
+                caregiverSelect.innerHTML = '';
+                
+                // 添加占位选项
+                var placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = '请选择护理员';
+                placeholderOption.disabled = true;
+                placeholderOption.selected = true;
+                placeholderOption.hidden = true;
+                caregiverSelect.appendChild(placeholderOption);
+                
+                // 添加护理员选项
+                Object.keys(caregivers).forEach(function(empId) {
+                    var option = document.createElement('option');
+                    option.value = empId;
+                    option.textContent = caregivers[empId];
+                    caregiverSelect.appendChild(option);
+                });
+                
+                caregiverHint.textContent = '普通服务只能选择1个护理员';
+                caregiverHint.style.color = '#999';
+                
+            } else if (service.serviceType === '豪华寄养') {
+                // 豪华服务：显示两个选择框
+                caregiverGroup.style.display = 'block';
+                luxuryStaffGroup.style.display = 'block';
+                caregiverSelect.disabled = false;
+                caregiverSelect.innerHTML = '';
+                luxuryStaffSelect.disabled = true;
+                luxuryStaffSelect.innerHTML = '<option value="" disabled selected hidden>请先选择护理员</option>';
+                
+                // 添加占位选项
+                var placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = '请选择护理员';
+                placeholderOption.disabled = true;
+                placeholderOption.selected = true;
+                placeholderOption.hidden = true;
+                caregiverSelect.appendChild(placeholderOption);
+                
+                // 添加护理员选项
+                Object.keys(caregivers).forEach(function(empId) {
+                    var option = document.createElement('option');
+                    option.value = empId;
+                    option.textContent = caregivers[empId];
+                    caregiverSelect.appendChild(option);
+                });
+                
+                caregiverHint.textContent = '豪华服务必须选择1个护理员';
+                caregiverHint.style.color = '#d9534f';
+                luxuryStaffHint.textContent = '请先选择护理员';
+                luxuryStaffHint.style.color = '#999';
             }
         } else {
-            // 禁用员工选择
-            employeeSelect.disabled = true;
-            employeeSelect.innerHTML = '<option value="" disabled selected hidden>请先选择服务</option>';
-            employeeHint.textContent = '请先选择服务';
-            employeeHint.style.color = '#999';
+            // 隐藏所有员工选择
+            caregiverGroup.style.display = 'none';
+            luxuryStaffGroup.style.display = 'none';
+            caregiverSelect.disabled = true;
+            luxuryStaffSelect.disabled = true;
         }
         
         calculateAmount();
     });
     
-    // 监听员工选择变化，验证数量
-    employeeSelect.addEventListener('change', function() {
+    // 监听护理员选择（豪华服务时启用其他职员选择）
+    caregiverSelect.addEventListener('change', function() {
         var serviceId = serviceSelect.value;
         if (!serviceId || !serviceData[serviceId]) return;
         
         var service = serviceData[serviceId];
-        var selectedCount = Array.from(employeeSelect.selectedOptions).length;
-        var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
         
-        if (selectedCount !== requiredCount) {
-            employeeHint.textContent = '已选' + selectedCount + '个员工，' + 
-                (service.serviceType === '豪华寄养' ? '必须选择3个' : '只能选择1个') + '！';
-            employeeHint.style.color = '#d9534f';
+        if (service.serviceType === '豪华寄养' && this.value) {
+            // 启用豪华服务职员选择
+            luxuryStaffSelect.disabled = false;
+            luxuryStaffSelect.innerHTML = '';
+            
+            // 添加占位选项（多选框无需hidden，因为用户可以看到占位文本）
+            var placeholderOption = document.createElement('option');
+            placeholderOption.value = '';
+            placeholderOption.textContent = '请选择其他职位员工（Ctrl+点击多选）';
+            placeholderOption.disabled = true;
+            placeholderOption.selected = true;
+            luxuryStaffSelect.appendChild(placeholderOption);
+            
+            // 添加其他职位员工选项
+            Object.keys(otherStaff).forEach(function(empId) {
+                var option = document.createElement('option');
+                option.value = empId;
+                option.textContent = otherStaff[empId];
+                luxuryStaffSelect.appendChild(option);
+            });
+            
+            luxuryStaffHint.textContent = '请选择2个其他职位员工（按住Ctrl键多选）';
+            luxuryStaffHint.style.color = '#d9534f';
+        }
+    });
+    
+    // 监听豪华服务职员选择
+    luxuryStaffSelect.addEventListener('change', function() {
+        // 过滤掉占位选项
+        var selectedCount = Array.from(this.selectedOptions).filter(function(opt) {
+            return opt.value !== '';
+        }).length;
+        
+        if (selectedCount !== 2) {
+            luxuryStaffHint.textContent = '已选' + selectedCount + '个员工，必须选择2个！';
+            luxuryStaffHint.style.color = '#d9534f';
             submitButton.disabled = true;
         } else {
-            employeeHint.textContent = '✅ 已正确选择' + selectedCount + '个员工';
-            employeeHint.style.color = '#5cb85c';
+            luxuryStaffHint.textContent = '✅ 已正确选择2个员工';
+            luxuryStaffHint.style.color = '#5cb85c';
             submitButton.disabled = false;
         }
     });
@@ -323,25 +414,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        var selectedEmployees = Array.from(employeeSelect.selectedOptions);
-        if (selectedEmployees.length === 0) {
-            alert('请选择员工！');
-            e.preventDefault();
-            return false;
-        }
-        
         var service = serviceData[serviceId];
-        var requiredCount = service.serviceType === '豪华寄养' ? 3 : 1;
+        var caregiverId = caregiverSelect.value;
         
-        if (selectedEmployees.length !== requiredCount) {
-            alert(service.serviceType === '豪华寄养' ? 
-                '豪华服务必须选择3个员工！' : 
-                '普通服务只能选择1个员工！');
+        if (!caregiverId) {
+            alert('请选择护理员！');
             e.preventDefault();
             return false;
         }
         
-        // name="employeeIds[]" 会自动提交，不需要手动添加 hidden inputs
+        if (service.serviceType === '豪华寄养') {
+            var luxuryStaff = Array.from(luxuryStaffSelect.selectedOptions);
+            if (luxuryStaff.length !== 2) {
+                alert('豪华服务必须选择2个其他职位员工！');
+                e.preventDefault();
+                return false;
+            }
+        }
+        
         return true;
     });
 });

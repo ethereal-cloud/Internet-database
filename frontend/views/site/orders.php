@@ -42,14 +42,45 @@ $this->params['breadcrumbs'][] = $this->title;
                             <td><?= Html::encode($order->OrderID) ?></td>
                             <td><?= Html::encode($order->pet->PetName ?? $order->PetID) ?></td>
                             <td><?= Html::encode(($order->service->ServiceType ?? '') . ' / ' . ($order->service->PetCategory ?? '')) ?></td>
-                            <td><?= Html::encode($order->StartTime . ' ~ ' . $order->EndTime) ?></td>
+                            <td>
+                                <strong>开始：</strong><?= Html::encode($order->StartTime) ?><br>
+                                <strong>结束：</strong><?= Html::encode($order->EndTime) ?>
+                            </td>
                             <td>
                                 <?php
-                                    $names = array_map(function($emp) {
-                                        $contact = $emp->Contact ? '（' . $emp->Contact . '）' : '';
-                                        return $emp->Name . $contact;
-                                    }, $order->employees ?? []);
-                                    echo $names ? Html::encode(implode('、', $names)) : '<span class="text-muted">待分配</span>';
+                                    $employees = $order->employees ?? [];
+                                    if (empty($employees)) {
+                                        echo '<span class="text-muted">待分配</span>';
+                                    } else {
+                                        // 分离护理员和其他职员
+                                        $caregiver = null;
+                                        $otherStaff = [];
+                                        foreach ($employees as $emp) {
+                                            if ($emp->Position === '护理员') {
+                                                $caregiver = $emp;
+                                            } else {
+                                                $otherStaff[] = $emp;
+                                            }
+                                        }
+                                        
+                                        // 显示护理员
+                                        if ($caregiver) {
+                                            echo '<strong>护理员：</strong>' . Html::encode($caregiver->Name) . 
+                                                 '（' . Html::encode($caregiver->Position) . '，' . Html::encode($caregiver->Contact) . '）';
+                                        }
+                                        
+                                        // 显示其他职员
+                                        if (!empty($otherStaff)) {
+                                            echo $caregiver ? '<br>' : '';
+                                            echo '<strong>其他服务职员：</strong>';
+                                            $staffInfo = array_map(function($emp) {
+                                                return Html::encode($emp->Name) . '（' . 
+                                                       Html::encode($emp->Position) . '，' . 
+                                                       Html::encode($emp->Contact) . '）';
+                                            }, $otherStaff);
+                                            echo implode('<br>', $staffInfo);
+                                        }
+                                    }
                                 ?>
                             </td>
                             <td>

@@ -41,7 +41,7 @@ class FosterserviceSearch extends Fosterservice
      */
     public function search($params)
     {
-        $query = Fosterservice::find();
+        $query = Fosterservice::find()->with('fosterorders');
 
         // add conditions that should always apply here
 

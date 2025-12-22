@@ -7,9 +7,14 @@ use Yii;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
+use common\models\Pet;
+use common\models\Fosterorder;
+use common\models\Fosterservice;
+use common\models\Customer;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -28,15 +33,15 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup'],
+                'only' => ['logout', 'signup', 'employee-signup', 'profile', 'pets', 'orders', 'services'],
                 'rules' => [
                     [
-                        'actions' => ['signup'],
+                        'actions' => ['signup', 'employee-signup'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['logout', 'profile', 'pets', 'orders', 'services'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -74,7 +79,42 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $dashboardData = [];
+
+        if (!Yii::$app->user->isGuest && (Yii::$app->user->identity->role ?? null) === 'customer') {
+            $customer = Yii::$app->user->identity->customer;
+
+            // 最近的宠物（含猫/狗特有信息）
+            $pets = Pet::find()
+                ->alias('p')
+                ->where(['p.CustomerID' => $customer->CustomerID])
+                ->with(['cat', 'dog'])
+                ->limit(5)
+                ->all();
+
+            // 最近订单
+            $orders = Fosterorder::find()
+                ->where(['CustomerID' => $customer->CustomerID])
+                ->with(['pet', 'service', 'employees'])
+                ->orderBy(['StartTime' => SORT_DESC])
+                ->limit(5)
+                ->all();
+
+            // 可选服务展示
+            $services = Fosterservice::find()
+                ->orderBy(['Price' => SORT_ASC])
+                ->limit(4)
+                ->all();
+
+            $dashboardData = [
+                'customer' => $customer,
+                'pets' => $pets,
+                'orders' => $orders,
+                'services' => $services,
+            ];
+        }
+
+        return $this->render('index', $dashboardData);
     }
 
     /**
@@ -132,6 +172,112 @@ class SiteController extends Controller
         
         // 默认跳转
         return $this->goHome();
+    }
+
+    /**
+     * 个人信息页（仅客户）
+     */
+    public function actionProfile()
+    {
+        $customer = $this->requireCustomer();
+
+        // 允许客户修改除 CustomerID、MemberLevel 之外的字段
+        if ($customer->load(Yii::$app->request->post())) {
+            $allowed = ['Name', 'Gender', 'Contact', 'Address'];
+            if ($customer->save(true, $allowed)) {
+                Yii::$app->session->setFlash('success', '资料已更新。');
+                return $this->refresh();
+            }
+            Yii::$app->session->setFlash('error', '保存失败，请检查输入。');
+        }
+
+        return $this->render('profile', [
+            'customer' => $customer,
+        ]);
+    }
+
+    /**
+     * 宠物列表（仅客户）
+     */
+    public function actionPets()
+    {
+        $customer = $this->requireCustomer();
+        $request = Yii::$app->request;
+        $type = $request->get('type'); // cat / dog
+        $gender = $request->get('gender'); // 公 / 母
+        $keyword = trim($request->get('q', ''));
+        $health = trim($request->get('health', ''));
+
+        $query = Pet::find()
+            ->alias('p')
+            ->where(['p.CustomerID' => $customer->CustomerID])
+            ->with(['cat', 'dog']);
+
+        if ($type === 'cat') {
+            $query->innerJoinWith('cat');
+        } elseif ($type === 'dog') {
+            $query->innerJoinWith('dog');
+        }
+
+        if ($gender) {
+            $query->andWhere(['p.Gender' => $gender]);
+        }
+
+        if ($keyword !== '') {
+            $query->andWhere(['like', 'p.PetName', $keyword]);
+        }
+
+        if ($health !== '') {
+            $query->andWhere(['like', 'p.HealthStatus', $health]);
+        }
+
+        $pets = $query
+            ->orderBy(['p.PetID' => SORT_ASC])
+            ->all();
+
+        return $this->render('pets', [
+            'customer' => $customer,
+            'pets' => $pets,
+            'filters' => [
+                'type' => $type,
+                'gender' => $gender,
+                'q' => $keyword,
+                'health' => $health,
+            ],
+        ]);
+    }
+
+    /**
+     * 订单列表（仅客户）
+     */
+    public function actionOrders()
+    {
+        $customer = $this->requireCustomer();
+        $orders = Fosterorder::find()
+            ->where(['CustomerID' => $customer->CustomerID])
+            ->with(['pet', 'service', 'employees'])
+            ->orderBy(['StartTime' => SORT_DESC])
+            ->all();
+
+        return $this->render('orders', [
+            'customer' => $customer,
+            'orders' => $orders,
+        ]);
+    }
+
+    /**
+     * 寄养服务列表（仅客户查看）
+     */
+    public function actionServices()
+    {
+        $this->requireCustomer();
+        $services = Fosterservice::find()
+            ->orderBy(['ServiceType' => SORT_ASC, 'PetCategory' => SORT_ASC])
+            ->all();
+
+        return $this->render('services', [
+            'services' => $services,
+        ]);
     }
 
     /**
@@ -370,5 +516,27 @@ class SiteController extends Controller
         return $this->render('resendVerificationEmail', [
             'model' => $model
         ]);
+    }
+
+    /**
+     * 仅允许客户访问的检查
+     */
+    private function requireCustomer(): Customer
+    {
+        if (Yii::$app->user->isGuest) {
+            throw new ForbiddenHttpException('请先登录。');
+        }
+
+        $user = Yii::$app->user->identity;
+        if (($user->role ?? null) !== 'customer') {
+            throw new ForbiddenHttpException('仅客户账号可访问此页面。');
+        }
+
+        $customer = $user->customer;
+        if (!$customer) {
+            throw new ForbiddenHttpException('未找到您的客户资料，请联系管理员。');
+        }
+
+        return $customer;
     }
 }

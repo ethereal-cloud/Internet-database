@@ -9,14 +9,18 @@ use yii\widgets\Pjax;
 
 $this->title = '订单列表';
 $this->params['breadcrumbs'][] = $this->title;
+$role = Yii::$app->user->identity->role ?? 'guest';
+$isAdmin = $role === 'admin';
 ?>
 <div class="fosterorder-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('新增订单', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <?php if ($isAdmin): ?>
+        <p>
+            <?= Html::a('新增订单', ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
 
     <?php Pjax::begin(); ?>
 
@@ -56,7 +60,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'OrderStatus',
             'PaymentAmount',
 
-            [
+            $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
                     'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->OrderID]),
@@ -64,6 +68,12 @@ $this->params['breadcrumbs'][] = $this->title;
                     'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->OrderID],[
                         'data'=>['confirm'=>'确认删除该订单？','method'=>'post']
                     ]),
+                ],
+            ] : [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view}',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->OrderID]),
                 ],
             ],
         ],

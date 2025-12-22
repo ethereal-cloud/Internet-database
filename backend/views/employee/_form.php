@@ -27,7 +27,11 @@ $isAdmin = $user && $user->role === 'admin';
 
     <?= $form->field($model, 'Contact')->textInput(['maxlength' => true])->label('联系方式') ?>
 
-    <?= $form->field($model, 'HireDate')->textInput(['readonly' => !$isAdmin, 'style' => !$isAdmin ? 'background-color: #f5f5f5;' : ''])->label('入职日期') ?>
+    <?= $form->field($model, 'HireDate')->input('date', [
+        'readonly' => !$isAdmin,
+        'style' => !$isAdmin ? 'background-color: #f5f5f5;' : '',
+        'value' => $model->HireDate ? date('Y-m-d', strtotime($model->HireDate)) : '',
+    ])->label('入职日期') ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>

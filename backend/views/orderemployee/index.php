@@ -9,14 +9,18 @@ use yii\widgets\Pjax;
 
 $this->title = '订单-员工';
 $this->params['breadcrumbs'][] = $this->title;
+$role = Yii::$app->user->identity->role ?? 'guest';
+$isAdmin = $role === 'admin';
 ?>
 <div class="order-employee-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('新增关联', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <?php if ($isAdmin): ?>
+        <p>
+            <?= Html::a('新增关联', ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+    <?php endif; ?>
 
     <?php Pjax::begin(); ?>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -30,7 +34,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'OrderID',
             'EmployeeID',
 
-            [
+            $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
                     'view' => fn($url,$model,$key)=>Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
@@ -38,6 +42,12 @@ $this->params['breadcrumbs'][] = $this->title;
                     'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID],[
                         'data'=>['confirm'=>'确认删除该关联？','method'=>'post']
                     ]),
+                ],
+            ] : [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view}',
+                'buttons' => [
+                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
                 ],
             ],
         ],

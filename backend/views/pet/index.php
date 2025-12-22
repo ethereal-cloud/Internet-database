@@ -9,15 +9,19 @@ use yii\widgets\Pjax;
 
 $this->title = '宠物列表';
 $this->params['breadcrumbs'][] = $this->title;
+$role = Yii::$app->user->identity->role ?? 'guest';
+$isAdmin = $role === 'admin';
 ?>
 <div class="pet-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('新增猫', ['create', 'type' => 'cat'], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('新增狗', ['create', 'type' => 'dog'], ['class' => 'btn btn-info']) ?>
-    </p>
+    <?php if ($isAdmin): ?>
+        <p>
+            <?= Html::a('新增猫', ['create', 'type' => 'cat'], ['class' => 'btn btn-success']) ?>
+            <?= Html::a('新增狗', ['create', 'type' => 'dog'], ['class' => 'btn btn-info']) ?>
+        </p>
+    <?php endif; ?>
 
     <?php Pjax::begin(); ?>
 
@@ -32,8 +36,20 @@ $this->params['breadcrumbs'][] = $this->title;
             'PetName',
             'Gender',
             'AgeYears',
-
             [
+                'label' => '类别',
+                'value' => function ($model) {
+                    if ($model->cat) {
+                        return '猫（' . $model->cat->FurLength . ' / ' . $model->cat->Personality . '）';
+                    }
+                    if ($model->dog) {
+                        return '狗（' . $model->dog->DogBreedType . ' / ' . $model->dog->TrainingLevel . '）';
+                    }
+                    return '未知';
+                },
+            ],
+
+            $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
                     'update' => function ($url, $model, $key) {
@@ -50,6 +66,14 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'method' => 'post',
                             ],
                         ]);
+                    },
+                ],
+            ] : [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view}',
+                'buttons' => [
+                    'view' => function ($url, $model, $key) {
+                        return Html::a('查看', ['view', 'id' => $model->PetID]);
                     },
                 ],
             ],

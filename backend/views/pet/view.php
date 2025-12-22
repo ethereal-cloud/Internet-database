@@ -15,16 +15,18 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('编辑', ['update', 'id' => $model->PetID], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('删除', ['delete', 'id' => $model->PetID], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => '确认删除该宠物？',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+    <?php if ((Yii::$app->user->identity->role ?? '') === 'admin'): ?>
+        <p>
+            <?= Html::a('编辑', ['update', 'id' => $model->PetID], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('删除', ['delete', 'id' => $model->PetID], [
+                'class' => 'btn btn-danger',
+                'data' => [
+                    'confirm' => '确认删除该宠物？',
+                    'method' => 'post',
+                ],
+            ]) ?>
+        </p>
+    <?php endif; ?>
 
     <?= DetailView::widget([
         'model' => $model,
@@ -36,6 +38,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'AgeYears',
             'AgeMonths',
             'HealthStatus',
+            [
+                'label' => '类别',
+                'value' => function ($model) {
+                    if ($model->cat) {
+                        return '猫（' . $model->cat->FurLength . ' / ' . $model->cat->Personality . '）';
+                    }
+                    if ($model->dog) {
+                        return '狗（' . $model->dog->DogBreedType . ' / ' . $model->dog->TrainingLevel . '）';
+                    }
+                    return '未知';
+                },
+            ],
         ],
     ]) ?>
 

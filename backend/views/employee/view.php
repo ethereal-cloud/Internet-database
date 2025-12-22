@@ -15,16 +15,18 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('编辑', ['update', 'id' => $model->EmployeeID], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('删除', ['delete', 'id' => $model->EmployeeID], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => '确认删除该员工？',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+    <?php if ((Yii::$app->user->identity->role ?? '') === 'admin'): ?>
+        <p>
+            <?= Html::a('编辑', ['update', 'id' => $model->EmployeeID], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('删除', ['delete', 'id' => $model->EmployeeID], [
+                'class' => 'btn btn-danger',
+                'data' => [
+                    'confirm' => '确认删除该员工？',
+                    'method' => 'post',
+                ],
+            ]) ?>
+        </p>
+    <?php endif; ?>
 
     <?= DetailView::widget([
         'model' => $model,

@@ -20,9 +20,21 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'ServiceID')->textInput()->label('服务编号') ?>
 
-    <?= $form->field($model, 'StartTime')->textInput()->label('开始时间') ?>
+    <?php
+        $now = date('Y-m-d\TH:i');
+        $tomorrow = date('Y-m-d\TH:i', strtotime('+1 day'));
+        $startVal = $model->StartTime ? date('Y-m-d\TH:i', strtotime($model->StartTime)) : $now;
+        $endVal = $model->EndTime ? date('Y-m-d\TH:i', strtotime($model->EndTime)) : $tomorrow;
+    ?>
+    <?= $form->field($model, 'StartTime')->input('datetime-local', [
+        'value' => $startVal,
+        'min' => $now,
+    ])->label('开始时间') ?>
 
-    <?= $form->field($model, 'EndTime')->textInput()->label('结束时间') ?>
+    <?= $form->field($model, 'EndTime')->input('datetime-local', [
+        'value' => $endVal,
+        'min' => $now,
+    ])->label('结束时间') ?>
 
     <?= $form->field($model, 'OrderStatus')->dropDownList([ '未支付' => '未支付', '已支付' => '已支付', ], ['prompt' => '选择状态'])->label('订单状态') ?>
 

@@ -174,7 +174,16 @@ class EmployeeController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+
+        // 若员工存在订单关联，禁止删除
+        $hasOrders = \common\models\OrderEmployee::find()->where(['EmployeeID' => $model->EmployeeID])->exists();
+        if ($hasOrders) {
+            Yii::$app->session->setFlash('error', '该员工已分配订单，无法删除。');
+            return $this->redirect(['index']);
+        }
+
+        $model->delete();
 
         return $this->redirect(['index']);
     }

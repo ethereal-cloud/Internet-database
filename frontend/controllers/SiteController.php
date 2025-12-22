@@ -652,11 +652,13 @@ class SiteController extends Controller
                 $employee->HireDate = date('Y-m-d'); // 当前日期
                 
                 if ($employee->save()) {
-                    Yii::$app->session->setFlash('success', '员工账号注册成功！请登录。');
+                    Yii::$app->session->setFlash('success', '员工账号注册成功！请前往后台登录。');
                 } else {
                     Yii::$app->session->setFlash('warning', '注册成功，但创建员工资料失败，请联系管理员。');
                 }
-                return $this->redirect(['login']);
+                // 注册完成后跳转到后台登录页（使用绝对路径防止 404）
+                $backendLogin = Yii::$app->request->hostInfo . '/yii-advanced-app-2.0.32/advanced/backend/web/index.php?r=site/login';
+                return $this->redirect($backendLogin);
             }
         } else {
             // 预填邀请码（如果 URL 中有）

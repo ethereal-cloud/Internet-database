@@ -30,13 +30,32 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'OrderID',
-            'CustomerID',
-            'PetID',
-            'ServiceID',
+            [
+                'label' => '客户',
+                'value' => $model->CustomerID,
+            ],
+            [
+                'label' => '宠物',
+                'value' => $model->pet->PetName ?? $model->PetID,
+            ],
+            [
+                'label' => '服务',
+                'value' => $model->service ? $model->service->ServiceType . ' / ' . $model->service->PetCategory : $model->ServiceID,
+            ],
             'StartTime',
             'EndTime',
             'OrderStatus',
             'PaymentAmount',
+            [
+                'label' => '负责员工',
+                'value' => function($model) {
+                    $names = array_map(function($emp) {
+                        $contact = $emp->Contact ? '（' . $emp->Contact . '）' : '';
+                        return $emp->Name . $contact;
+                    }, $model->employees ?? []);
+                    return $names ? implode('、', $names) : '-';
+                },
+            ],
         ],
     ]) ?>
 

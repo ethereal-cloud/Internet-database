@@ -14,16 +14,50 @@ $isCustomer = !Yii::$app->user->isGuest && (Yii::$app->user->identity->role ?? n
 $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
 ?>
 <div class="site-index">
+    <section class="home-hero">
+        <div class="home-hero-title">
+            <h1>把它交给我们，你放心忙你的</h1>
+            <p>在Dogs&amp;Cats寄养，不只是“有人喂”，更是像在家一样被照顾。</p>
+        </div>
+        <div class="row home-hero-content">
+            <div class="col-md-7 col-sm-6">
+                <div class="home-hero-card">
+                    <p class="home-hero-card-lead">为什么选择Dogs&amp;Cats寄养？</p>
+                    <p>
+                        我们提供干净通风的独立寄养空间、定时喂养与换水、每日清洁消毒与互动陪伴。 </p>
+                         <p>寄养期间可随时视频/照片反馈，让你随时知道TA吃得好不好、精神好不好、有没有想你。 </p>
+                         <p>无论是短途出差、旅行还是临时有事，我们都认真对待每一次托付。 </p>
+                        <p> 每位毛孩子都会建立独立档案，记录饮食习惯、作息偏好与健康状态，确保照护细节不遗漏。
+                        入住前后严格消毒、分区管理，减少交叉接触风险，让TA住得安心、你也更放心。
+                        我们还提供每日互动陪伴与轻度活动，让TA在寄养期间保持好心情与活力。
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-5 col-sm-6">
+                <?= Html::img('@web/images/pexels-photo-2253275.webp', [
+                    'class' => 'home-hero-image img-responsive',
+                    'alt' => 'Dogs & Cats 寄养',
+                ]) ?>
+            </div>
+        </div>
+    </section>
     <?php if ($isCustomer && isset($customer)): ?>
-        <div class="jumbotron">
-            <h1>欢迎回来，<?= Html::encode($customer->Name ?: Yii::$app->user->identity->username) ?></h1>
-            <p class="lead">请选择要进入的功能页面</p>
-            <p>
-                <?= Html::a('个人信息', ['profile'], ['class' => 'btn btn-primary btn-lg']) ?>
-                <?= Html::a('宠物信息', ['pets'], ['class' => 'btn btn-success btn-lg']) ?>
-                <?= Html::a('订单信息', ['orders'], ['class' => 'btn btn-info btn-lg']) ?>
-                <?= Html::a('寄养服务', ['services'], ['class' => 'btn btn-warning btn-lg']) ?>
-            </p>
+        <div class="customer-strip-tag">请选择功能页面</div>
+        <div class="customer-strip">
+            <div class="customer-strip-inner">
+                <div class="customer-strip-left">
+                    <h1>欢迎回来，<?= Html::encode($customer->Name ?: Yii::$app->user->identity->username) ?></h1>
+                    <p class="lead">请选择要进入的功能页面</p>
+                </div>
+                <div class="customer-strip-right">
+                    <div class="customer-strip-menu">
+                        <?= Html::a('个人信息', ['profile'], ['class' => 'customer-strip-link']) ?>
+                        <?= Html::a('宠物信息', ['pets'], ['class' => 'customer-strip-link']) ?>
+                        <?= Html::a('订单信息', ['orders'], ['class' => 'customer-strip-link']) ?>
+                        <?= Html::a('寄养服务', ['services'], ['class' => 'customer-strip-link']) ?>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="body-content">

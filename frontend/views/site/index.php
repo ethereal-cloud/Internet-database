@@ -4,8 +4,11 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $customer \common\models\Customer|null */
 /* @var $pets \common\models\Pet[]|null */
+/* @var $petsCount int */
 /* @var $orders \common\models\Fosterorder[]|null */
+/* @var $ordersCount int */
 /* @var $services \common\models\Fosterservice[]|null */
+/* @var $servicesCount int */
 
 $isCustomer = !Yii::$app->user->isGuest && (Yii::$app->user->identity->role ?? null) === 'customer';
 $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
@@ -38,7 +41,7 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
                     <div class="panel panel-success">
                         <div class="panel-heading">我的宠物</div>
                         <div class="panel-body">
-                            <h3><?= isset($pets) ? count($pets) : 0 ?> 只</h3>
+                            <h3><?= isset($petsCount) ? $petsCount : 0 ?> 只</h3>
                             <p class="text-muted">查看或补充宠物信息。</p>
                         </div>
                         <div class="panel-footer"><?= Html::a('前往宠物信息', ['pets']) ?></div>
@@ -48,7 +51,7 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
                     <div class="panel panel-info">
                         <div class="panel-heading">我的订单</div>
                         <div class="panel-body">
-                            <h3><?= isset($orders) ? count($orders) : 0 ?> 单</h3>
+                            <h3><?= isset($ordersCount) ? $ordersCount : 0 ?> 单</h3>
                             <p class="text-muted">查看寄养记录与支付金额。</p>
                         </div>
                         <div class="panel-footer"><?= Html::a('前往订单信息', ['orders']) ?></div>
@@ -58,7 +61,7 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
                     <div class="panel panel-warning">
                         <div class="panel-heading">寄养服务</div>
                         <div class="panel-body">
-                            <h3><?= isset($services) ? count($services) : 0 ?> 项</h3>
+                            <h3><?= isset($servicesCount) ? $servicesCount : 0 ?> 项</h3>
                             <p class="text-muted">查看可选套餐与价格。</p>
                         </div>
                         <div class="panel-footer"><?= Html::a('查看服务列表', ['services']) ?></div>

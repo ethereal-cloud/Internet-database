@@ -68,13 +68,13 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <?= $form->field($model, 'StartTime')->input('datetime-local', [
-            'value' => date('Y-m-d\TH:i'),
-            'min' => date('Y-m-d\TH:i')
+            'value' => date('Y-m-d\TH:i', time() + 8*3600),
+            'min' => date('Y-m-d\TH:i', time() + 8*3600)
         ])->label('寄养开始时间') ?>
 
         <?= $form->field($model, 'EndTime')->input('datetime-local', [
-            'value' => date('Y-m-d\TH:i', strtotime('+1 day')),
-            'min' => date('Y-m-d\TH:i'),
+            'value' => date('Y-m-d\TH:i', time() + 8*3600 + 86400),
+            'min' => date('Y-m-d\TH:i', time() + 8*3600),
             'id' => 'end-time-input'
         ])->label('寄养结束时间') ?>
         <div id="time-error" class="alert alert-danger" style="display: none; margin-top: -10px; margin-bottom: 15px;">

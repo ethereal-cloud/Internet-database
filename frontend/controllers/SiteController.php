@@ -409,6 +409,28 @@ class SiteController extends Controller
         $services = Fosterservice::find()->all();
 
         if ($model->load(Yii::$app->request->post())) {
+            // 验证开始时间不能早于当前时间
+            if (strtotime($model->StartTime) < time()) {
+                Yii::$app->session->setFlash('error', '寄养开始时间不能早于当前时间！');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
+            // 验证结束时间不能早于当前时间
+            if (strtotime($model->EndTime) < time()) {
+                Yii::$app->session->setFlash('error', '寄养结束时间不能早于当前时间！');
+                return $this->render('order-create', [
+                    'model' => $model,
+                    'customer' => $customer,
+                    'pets' => $pets,
+                    'services' => $services,
+                ]);
+            }
+
             // 验证宠物是否属于当前客户
             $pet = Pet::findOne(['PetID' => $model->PetID, 'CustomerID' => $customer->CustomerID]);
             if (!$pet) {

@@ -60,11 +60,13 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <?= $form->field($model, 'StartTime')->input('datetime-local', [
-            'value' => date('Y-m-d\TH:i')
+            'value' => date('Y-m-d\TH:i'),
+            'min' => date('Y-m-d\TH:i')
         ])->label('寄养开始时间') ?>
 
         <?= $form->field($model, 'EndTime')->input('datetime-local', [
             'value' => date('Y-m-d\TH:i', strtotime('+1 day')),
+            'min' => date('Y-m-d\TH:i'),
             'id' => 'end-time-input'
         ])->label('寄养结束时间') ?>
         <div id="time-error" class="alert alert-danger" style="display: none; margin-top: -10px; margin-bottom: 15px;">
@@ -227,6 +229,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 监听时间输入变化
     startTimeInput.addEventListener('change', function() {
+        // 如果开始时间晚于结束时间，自动更新结束时间为开始时间+1天
+        var startTime = new Date(this.value);
+        var endTime = new Date(endTimeInput.value);
+        
+        if (startTime >= endTime) {
+            // 设置结束时间为开始时间后1天
+            var newEndTime = new Date(startTime.getTime() + 24 * 60 * 60 * 1000);
+            // 格式化为 datetime-local 格式
+            var year = newEndTime.getFullYear();
+            var month = String(newEndTime.getMonth() + 1).padStart(2, '0');
+            var day = String(newEndTime.getDate()).padStart(2, '0');
+            var hours = String(newEndTime.getHours()).padStart(2, '0');
+            var minutes = String(newEndTime.getMinutes()).padStart(2, '0');
+            endTimeInput.value = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+        }
+        
         validateTime();
         calculateAmount();
     });

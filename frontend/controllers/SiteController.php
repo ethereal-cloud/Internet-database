@@ -97,7 +97,12 @@ class SiteController extends Controller
                 ->limit(2)
                 ->all();
 
-            // 最近订单
+            // 宠物总数（用于统计卡片）
+            $petsCount = Pet::find()
+                ->where(['CustomerID' => $customer->CustomerID])
+                ->count();
+
+            // 最近订单（仅用于列表显示）
             $orders = Fosterorder::find()
                 ->where(['CustomerID' => $customer->CustomerID])
                 ->with(['pet', 'service', 'employees'])
@@ -105,17 +110,28 @@ class SiteController extends Controller
                 ->limit(2)
                 ->all();
 
-            // 可选服务展示
+            // 订单总数（用于统计卡片）
+            $ordersCount = Fosterorder::find()
+                ->where(['CustomerID' => $customer->CustomerID])
+                ->count();
+
+            // 可选服务展示（仅用于列表显示）
             $services = Fosterservice::find()
                 ->orderBy(['Price' => SORT_ASC])
                 ->limit(4)
                 ->all();
 
+            // 服务总数（用于统计卡片）
+            $servicesCount = Fosterservice::find()->count();
+
             $dashboardData = [
                 'customer' => $customer,
                 'pets' => $pets,
+                'petsCount' => $petsCount,
                 'orders' => $orders,
+                'ordersCount' => $ordersCount,
                 'services' => $services,
+                'servicesCount' => $servicesCount,
             ];
         }
 

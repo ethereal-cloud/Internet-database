@@ -12,6 +12,10 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="site-pets">
     <h1><?= Html::encode($this->title) ?></h1>
     <p class="text-muted">客户：<?= Html::encode($customer->Name ?: $customer->CustomerID) ?></p>
+    <p>
+        <?= Html::a('新增猫', ['pet-create', 'type' => 'cat'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('新增狗', ['pet-create', 'type' => 'dog'], ['class' => 'btn btn-info']) ?>
+    </p>
 
     <div class="panel panel-default">
         <div class="panel-heading">筛选</div>
@@ -55,6 +59,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <th>性别</th>
                     <th>年龄</th>
                     <th>健康状况</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,6 +80,16 @@ $this->params['breadcrumbs'][] = $this->title;
                         <td><?= Html::encode($pet->Gender) ?></td>
                         <td><?= Html::encode($pet->AgeYears . '岁' . $pet->AgeMonths . '月') ?></td>
                         <td><?= Html::encode($pet->HealthStatus) ?></td>
+                        <td>
+                            <?= Html::a('编辑', ['pet-update', 'id' => $pet->PetID], ['class' => 'btn btn-xs btn-primary']) ?>
+                            <?= Html::a('删除', ['pet-delete', 'id' => $pet->PetID], [
+                                'class' => 'btn btn-xs btn-danger',
+                                'data' => [
+                                    'confirm' => '确认删除该宠物？',
+                                    'method' => 'post',
+                                ],
+                            ]) ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

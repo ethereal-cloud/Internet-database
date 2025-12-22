@@ -12,6 +12,8 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
 use common\models\Pet;
+use common\models\Cat;
+use common\models\Dog;
 use common\models\Fosterorder;
 use common\models\Fosterservice;
 use common\models\Customer;
@@ -33,7 +35,7 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout', 'signup', 'employee-signup', 'profile', 'pets', 'orders', 'services'],
+                'only' => ['logout', 'signup', 'employee-signup', 'profile', 'pets', 'orders', 'services', 'pet-create', 'pet-update', 'pet-delete'],
                 'rules' => [
                     [
                         'actions' => ['signup', 'employee-signup'],
@@ -41,7 +43,7 @@ class SiteController extends Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['logout', 'profile', 'pets', 'orders', 'services'],
+                        'actions' => ['logout', 'profile', 'pets', 'orders', 'services', 'pet-create', 'pet-update', 'pet-delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -51,6 +53,7 @@ class SiteController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'logout' => ['post'],
+                    'pet-delete' => ['post'],
                 ],
             ],
         ];
@@ -247,6 +250,110 @@ class SiteController extends Controller
                 'health' => $health,
             ],
         ]);
+    }
+
+    /**
+     * 创建宠物（仅客户自己的名下）
+     */
+    public function actionPetCreate($type = 'cat')
+    {
+        $customer = $this->requireCustomer();
+        $pet = new Pet();
+        $pet->CustomerID = $customer->CustomerID;
+        $cat = $type === 'cat' ? new Cat() : null;
+        $dog = $type === 'dog' ? new Dog() : null;
+
+        if (Yii::$app->request->isPost) {
+            $post = Yii::$app->request->post();
+            $pet->load($post);
+
+            // 生成 PetID
+            $maxPetId = Pet::find()->max('PetID');
+            $pet->PetID = $maxPetId ? ($maxPetId + 1) : 300001;
+
+            // 仅保存非主键字段（PetID/CustomerID 已设定）
+            $pet->CustomerID = $customer->CustomerID;
+            $safe = ['PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus', 'CustomerID', 'PetID'];
+
+            if ($type === 'cat' && $cat && $cat->load($post) && $pet->save(true, $safe)) {
+                $cat->PetID = $pet->PetID;
+                if ($cat->save()) {
+                    Yii::$app->session->setFlash('success', '宠物（猫）已创建。');
+                    return $this->redirect(['pets']);
+                }
+            } elseif ($type === 'dog' && $dog && $dog->load($post) && $pet->save(true, $safe)) {
+                $dog->PetID = $pet->PetID;
+                if ($dog->save()) {
+                    Yii::$app->session->setFlash('success', '宠物（狗）已创建。');
+                    return $this->redirect(['pets']);
+                }
+            }
+
+            Yii::$app->session->setFlash('error', '保存失败，请检查输入。');
+        }
+
+        return $this->render('pet-form', [
+            'pet' => $pet,
+            'cat' => $cat,
+            'dog' => $dog,
+            'type' => $type,
+        ]);
+    }
+
+    /**
+     * 更新宠物（仅客户自己的宠物，非主键）
+     */
+    public function actionPetUpdate($id)
+    {
+        $customer = $this->requireCustomer();
+        $pet = $this->findOwnPet($id, $customer->CustomerID);
+        $type = $pet->cat ? 'cat' : ($pet->dog ? 'dog' : 'cat');
+        $cat = $pet->cat ?: ($type === 'cat' ? new Cat() : null);
+        $dog = $pet->dog ?: ($type === 'dog' ? new Dog() : null);
+
+        if (Yii::$app->request->isPost) {
+            $post = Yii::$app->request->post();
+            $pet->load($post);
+            $safe = ['PetName', 'Gender', 'AgeYears', 'AgeMonths', 'HealthStatus'];
+            $petSaved = $pet->save(true, $safe);
+
+            $relSaved = true;
+            if ($type === 'cat' && $cat) {
+                $cat->load($post);
+                $cat->PetID = $pet->PetID;
+                $relSaved = $cat->save();
+            } elseif ($type === 'dog' && $dog) {
+                $dog->load($post);
+                $dog->PetID = $pet->PetID;
+                $relSaved = $dog->save();
+            }
+
+            if ($petSaved && $relSaved) {
+                Yii::$app->session->setFlash('success', '宠物信息已更新。');
+                return $this->redirect(['pets']);
+            }
+
+            Yii::$app->session->setFlash('error', '保存失败，请检查输入。');
+        }
+
+        return $this->render('pet-form', [
+            'pet' => $pet,
+            'cat' => $cat,
+            'dog' => $dog,
+            'type' => $type,
+        ]);
+    }
+
+    /**
+     * 删除宠物（仅客户自己的宠物）
+     */
+    public function actionPetDelete($id)
+    {
+        $customer = $this->requireCustomer();
+        $pet = $this->findOwnPet($id, $customer->CustomerID);
+        $pet->delete();
+        Yii::$app->session->setFlash('success', '宠物已删除。');
+        return $this->redirect(['pets']);
     }
 
     /**
@@ -540,5 +647,22 @@ class SiteController extends Controller
         }
 
         return $customer;
+    }
+
+    /**
+     * 获取当前客户自己的宠物
+     */
+    private function findOwnPet($id, $customerId): Pet
+    {
+        $pet = Pet::find()
+            ->where(['PetID' => $id, 'CustomerID' => $customerId])
+            ->with(['cat', 'dog'])
+            ->one();
+
+        if (!$pet) {
+            throw new ForbiddenHttpException('无权访问该宠物信息。');
+        }
+
+        return $pet;
     }
 }

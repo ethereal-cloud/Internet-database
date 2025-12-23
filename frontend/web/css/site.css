@@ -97,6 +97,12 @@ body {
     font-weight: 600;
 }
 
+.navbar-inverse .navbar-brand {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: 24px;
+    letter-spacing: 0.04em;
+}
+
 .navbar-inverse .navbar-brand:hover,
 .navbar-inverse .navbar-nav > li > a:hover {
     color: #24343d;

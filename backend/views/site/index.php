@@ -108,11 +108,6 @@ $cards = [
             <div class="brand-mark">PawCare</div>
             <div class="brand-tagline">宠物寄养管理中心</div>
         </div>
-        <nav class="admin-nav">
-            <?php foreach ($navItems as $item): ?>
-                <?= Html::a(Html::encode($item['label']), $item['url'], ['class' => 'nav-pill']) ?>
-            <?php endforeach; ?>
-        </nav>
         <div class="admin-actions">
             <div class="role-chip"><?= Html::encode($roleLabel) ?>专用</div>
         </div>
@@ -120,9 +115,9 @@ $cards = [
 
     <section class="admin-hero">
         <div class="hero-copy">
-            <p class="hero-kicker">Ruff & Fetch Inspired</p>
-            <h1>精致、安静、可掌控的后台体验</h1>
-            <p class="hero-text">为管理员与员工提供清晰的职责分区与权限指引，快速进入日常工作流程。</p>
+            <p class="hero-kicker">Dogs & Cats Inspired</p>
+            <h1>守护好每一个毛孩子的健康</h1>
+            <p class="hero-text">请检查好自己的订单信息，给家长一个安心的交代。</p>
             <div class="hero-stats">
                 <div>
                     <span>当前身份</span>
@@ -134,7 +129,7 @@ $cards = [
                 </div>
                 <div>
                     <span>推荐入口</span>
-                    <strong><?= Html::encode($roleEntry) ?></strong>
+                    <strong><?= Html::a('进入订单', ['/fosterorder/index']) ?></strong>
                 </div>
             </div>
         </div>

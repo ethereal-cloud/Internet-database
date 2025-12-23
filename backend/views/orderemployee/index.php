@@ -37,17 +37,17 @@ $isAdmin = $role === 'admin';
             $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
-                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
-                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID],[
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]); },
+                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]); },
+                    'delete' => function($url,$model,$key){ return Html::a('删除',['delete','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID],[
                         'data'=>['confirm'=>'确认删除该关联？','method'=>'post']
-                    ]),
+                    ]); },
                 ],
             ] : [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view}',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]),
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','OrderID'=>$model->OrderID,'EmployeeID'=>$model->EmployeeID]); },
                 ],
             ],
         ],

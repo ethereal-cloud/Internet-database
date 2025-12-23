@@ -66,17 +66,17 @@ $self = $isEmployee ? Yii::$app->user->identity->employee : null;
             $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->EmployeeID]),
-                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->EmployeeID]),
-                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->EmployeeID],[
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->EmployeeID]); },
+                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','id'=>$model->EmployeeID]); },
+                    'delete' => function($url,$model,$key){ return Html::a('删除',['delete','id'=>$model->EmployeeID],[
                         'data'=>['confirm'=>'确认删除该员工？','method'=>'post']
-                    ]),
+                    ]); },
                 ],
             ] : [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view}',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->EmployeeID]),
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->EmployeeID]); },
                 ],
             ],
         ],

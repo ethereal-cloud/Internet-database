@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use backend\models\PetSearch;
 /* @var $this yii\web\View */
 /* @var $searchModel backend\models\PetSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -38,6 +39,8 @@ $isAdmin = $role === 'admin';
             'AgeYears',
             [
                 'label' => '类别',
+                'attribute' => 'Type',
+                'headerOptions' => ['class' => 'text-primary'],
                 'value' => function ($model) {
                     if ($model->cat) {
                         return '猫（' . $model->cat->FurLength . ' / ' . $model->cat->Personality . '）';
@@ -47,6 +50,11 @@ $isAdmin = $role === 'admin';
                     }
                     return '未知';
                 },
+                'filter' => [
+                    '' => '全部',
+                    'cat' => '猫',
+                    'dog' => '狗',
+                ],
             ],
 
             $isAdmin ? [

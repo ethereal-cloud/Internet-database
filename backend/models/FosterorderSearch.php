@@ -11,6 +11,11 @@ use common\models\Fosterorder;
  */
 class FosterorderSearch extends Fosterorder
 {
+    public $PetName;
+    public $ServiceType;
+    public $ServiceDisplay;
+    public $EmployeeName;
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +23,7 @@ class FosterorderSearch extends Fosterorder
     {
         return [
             [['OrderID', 'CustomerID', 'PetID', 'ServiceID'], 'integer'],
-            [['StartTime', 'EndTime', 'OrderStatus'], 'safe'],
+            [['StartTime', 'EndTime', 'OrderStatus', 'PetName', 'ServiceType', 'ServiceDisplay', 'EmployeeName'], 'safe'],
             [['PaymentAmount'], 'number'],
         ];
     }
@@ -42,6 +47,7 @@ class FosterorderSearch extends Fosterorder
     public function search($params)
     {
         $query = Fosterorder::find();
+        $query->alias('o')->joinWith(['pet p', 'service s'])->joinWith(['employees e'])->groupBy('o.OrderID');
 
         // 行级过滤
         $user = \Yii::$app->user->identity;
@@ -74,16 +80,33 @@ class FosterorderSearch extends Fosterorder
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'OrderID' => $this->OrderID,
-            'CustomerID' => $this->CustomerID,
-            'PetID' => $this->PetID,
-            'ServiceID' => $this->ServiceID,
-            'StartTime' => $this->StartTime,
-            'EndTime' => $this->EndTime,
-            'PaymentAmount' => $this->PaymentAmount,
+            'o.OrderID' => $this->OrderID,
+            'o.CustomerID' => $this->CustomerID,
+            'o.PetID' => $this->PetID,
+            'o.ServiceID' => $this->ServiceID,
+            'o.StartTime' => $this->StartTime,
+            'o.EndTime' => $this->EndTime,
+            'o.PaymentAmount' => $this->PaymentAmount,
         ]);
 
-        $query->andFilterWhere(['like', 'OrderStatus', $this->OrderStatus]);
+        $query->andFilterWhere(['like', 'o.OrderStatus', $this->OrderStatus]);
+        $query->andFilterWhere(['like', 'p.PetName', $this->PetName]);
+        // 服务过滤：如果填了“类型/适用宠物”两段，分别匹配；否则对类型和适用宠物做模糊匹配
+        if ($this->ServiceDisplay) {
+            $parts = array_map('trim', explode('/', $this->ServiceDisplay));
+            if (count($parts) >= 2) {
+                $query->andFilterWhere(['like', 's.ServiceType', $parts[0]]);
+                $query->andFilterWhere(['like', 's.PetCategory', $parts[1]]);
+            } else {
+                $query->andFilterWhere(['or',
+                    ['like', 's.ServiceType', $this->ServiceDisplay],
+                    ['like', 's.PetCategory', $this->ServiceDisplay],
+                ]);
+            }
+        } else {
+            $query->andFilterWhere(['like', 's.ServiceType', $this->ServiceType]);
+        }
+        $query->andFilterWhere(['like', 'e.Name', $this->EmployeeName]);
 
         return $dataProvider;
     }

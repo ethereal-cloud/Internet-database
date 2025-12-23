@@ -34,11 +34,11 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->PetID]),
-                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->PetID]),
-                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->PetID],[
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->PetID]); },
+                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','id'=>$model->PetID]); },
+                    'delete' => function($url,$model,$key){ return Html::a('删除',['delete','id'=>$model->PetID],[
                         'data'=>['confirm'=>'确认删除该记录？','method'=>'post']
-                    ]),
+                    ]); },
                 ],
             ],
         ],

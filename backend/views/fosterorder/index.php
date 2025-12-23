@@ -34,12 +34,16 @@ $isAdmin = $role === 'admin';
             'CustomerID',
             [
                 'label' => '宠物',
+                'attribute' => 'PetName',
+                'headerOptions' => ['class' => 'text-primary'],
                 'value' => function($model) {
                     return $model->pet->PetName ?? $model->PetID;
                 }
             ],
             [
                 'label' => '服务',
+                'attribute' => 'ServiceDisplay',
+                'headerOptions' => ['class' => 'text-primary'],
                 'value' => function($model) {
                     if (!$model->service) return $model->ServiceID;
                     return $model->service->ServiceType . ' / ' . $model->service->PetCategory;
@@ -49,6 +53,8 @@ $isAdmin = $role === 'admin';
             'EndTime',
             [
                 'label' => '负责员工',
+                'attribute' => 'EmployeeName',
+                'headerOptions' => ['class' => 'text-primary'],
                 'value' => function($model) {
                     $names = array_map(function($emp) {
                         $contact = $emp->Contact ? '（' . $emp->Contact . '）' : '';
@@ -63,17 +69,17 @@ $isAdmin = $role === 'admin';
             $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->OrderID]),
-                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->OrderID]),
-                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->OrderID],[
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->OrderID]); },
+                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','id'=>$model->OrderID]); },
+                    'delete' => function($url,$model,$key){ return Html::a('删除',['delete','id'=>$model->OrderID],[
                         'data'=>['confirm'=>'确认删除该订单？','method'=>'post']
-                    ]),
+                    ]); },
                 ],
             ] : [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view}',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->OrderID]),
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->OrderID]); },
                 ],
             ],
         ],

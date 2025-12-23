@@ -42,17 +42,17 @@ $isAdmin = $role === 'admin';
             $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->CustomerID]),
-                    'update' => fn($url,$model,$key)=>Html::a('编辑',['update','id'=>$model->CustomerID]),
-                    'delete' => fn($url,$model,$key)=>Html::a('删除',['delete','id'=>$model->CustomerID],[
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->CustomerID]); },
+                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','id'=>$model->CustomerID]); },
+                    'delete' => function($url,$model,$key){ return Html::a('删除',['delete','id'=>$model->CustomerID],[
                         'data'=>['confirm'=>'确认删除该客户？','method'=>'post']
-                    ]),
+                    ]); },
                 ],
             ] : [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{view}',
                 'buttons' => [
-                    'view' => fn($url,$model,$key)=>Html::a('查看',['view','id'=>$model->CustomerID]),
+                    'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->CustomerID]); },
                 ],
             ],
         ],

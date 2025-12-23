@@ -11,6 +11,8 @@ use common\models\Pet;
  */
 class PetSearch extends Pet
 {
+    public $Type;
+
     /**
      * {@inheritdoc}
      */
@@ -18,7 +20,7 @@ class PetSearch extends Pet
     {
         return [
             [['PetID', 'CustomerID', 'AgeYears', 'AgeMonths'], 'integer'],
-            [['PetName', 'Gender', 'HealthStatus'], 'safe'],
+            [['PetName', 'Gender', 'HealthStatus', 'Type'], 'safe'],
         ];
     }
 
@@ -83,6 +85,13 @@ class PetSearch extends Pet
         $query->andFilterWhere(['like', 'PetName', $this->PetName])
             ->andFilterWhere(['like', 'Gender', $this->Gender])
             ->andFilterWhere(['like', 'HealthStatus', $this->HealthStatus]);
+
+        // 类型筛选（猫/狗）
+        if ($this->Type === 'cat') {
+            $query->innerJoinWith('cat');
+        } elseif ($this->Type === 'dog') {
+            $query->innerJoinWith('dog');
+        }
 
         return $dataProvider;
     }

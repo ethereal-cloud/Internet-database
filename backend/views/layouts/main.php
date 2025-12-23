@@ -43,7 +43,7 @@ AppAsset::register($this);
         <div class="top-strip">宠物寄养后台 · 今日进度一览</div>
         <div class="nav-row">
             <?= Html::a(
-                'Ruff &amp; Fetch <span>后台管理中心</span>',
+                'Dogs&amp;Cats <span>后台管理中心</span>',
                 ['/site/index'],
                 ['class' => 'brand-link', 'encode' => false]
             ) ?>

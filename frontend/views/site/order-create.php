@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 员工数据：{employeeId: {name, position}}
     var employees = <?= json_encode(array_map(function($emp) {
         return [
-            'name' => $emp->Name . ' (#' . $emp->EmployeeID . ')',
+            'name' => $emp->Name . ' (#' . $emp->EmployeeID . ' / ' . $emp->Position . ')',
             'position' => $emp->Position,
         ];
     }, ArrayHelper::index(\common\models\Employee::find()->all(), 'EmployeeID'))) ?>;

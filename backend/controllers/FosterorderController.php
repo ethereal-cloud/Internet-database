@@ -5,6 +5,8 @@ namespace backend\controllers;
 use Yii;
 use common\models\Fosterorder;
 use common\models\Pet;
+use common\models\OrderEmployee;
+use common\models\Employee;
 use backend\models\FosterorderSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -102,6 +104,7 @@ class FosterorderController extends Controller
     {
         $model = new Fosterorder();
         $user = Yii::$app->user->identity;
+        $employeeIdsInput = Yii::$app->request->post('employee_ids', '');
         
         // 自动生成OrderID
         $maxId = Fosterorder::find()->max('OrderID');
@@ -122,14 +125,43 @@ class FosterorderController extends Controller
                 $model->CustomerID = $user->getCustomerId();
             }
             // admin 可以为任何客户/宠物创建订单
-            
-            if ($model->save()) {
+
+            $tx = Yii::$app->db->beginTransaction();
+            try {
+                if (!$model->save()) {
+                    throw new \Exception('订单保存失败');
+                }
+
+                // admin 分配员工
+                if ($user->role === 'admin' && $employeeIdsInput) {
+                    $ids = array_unique(array_filter(array_map('trim', explode('-', $employeeIdsInput))));
+                    if (!empty($ids)) {
+                        $employees = Employee::find()->where(['EmployeeID' => $ids])->all();
+                        if (count($employees) !== count($ids)) {
+                            throw new \Exception('存在无效的员工编号，无法分配。');
+                        }
+                        foreach ($ids as $eid) {
+                            $oe = new OrderEmployee();
+                            $oe->OrderID = $model->OrderID;
+                            $oe->EmployeeID = (int)$eid;
+                            if (!$oe->save()) {
+                                throw new \Exception('员工分配保存失败');
+                            }
+                        }
+                    }
+                }
+
+                $tx->commit();
                 return $this->redirect(['view', 'id' => $model->OrderID]);
+            } catch (\Throwable $e) {
+                $tx->rollBack();
+                Yii::$app->session->setFlash('error', $e->getMessage());
             }
         }
 
         return $this->render('create', [
             'model' => $model,
+            'employeeIdsInput' => '',
         ]);
     }
 

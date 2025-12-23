@@ -68,9 +68,9 @@ $isAdmin = $role === 'admin';
 
             $isAdmin ? [
                 'class' => 'yii\grid\ActionColumn',
+                'template' => '{view} {delete}',
                 'buttons' => [
                     'view' => function($url,$model,$key){ return Html::a('查看',['view','id'=>$model->OrderID]); },
-                    'update' => function($url,$model,$key){ return Html::a('编辑',['update','id'=>$model->OrderID]); },
                     'delete' => function($url,$model,$key){ return Html::a('删除',['delete','id'=>$model->OrderID],[
                         'data'=>['confirm'=>'确认删除该订单？','method'=>'post']
                     ]); },

@@ -40,6 +40,14 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'PaymentAmount')->textInput(['maxlength' => true])->label('支付金额') ?>
 
+    <?php if ((Yii::$app->user->identity->role ?? '') === 'admin'): ?>
+        <div class="form-group">
+            <label class="control-label">分配员工（用“-”分隔编号，如 100002-100003）</label>
+            <input type="text" name="employee_ids" class="form-control" placeholder="100002-100003" value="<?= isset($employeeIdsInput) ? htmlspecialchars($employeeIdsInput, ENT_QUOTES) : '' ?>">
+            <p class="help-block">可选，不填则不分配。</p>
+        </div>
+    <?php endif; ?>
+
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? '创建' : '保存', ['class' => 'btn btn-success']) ?>
     </div>

@@ -40,7 +40,7 @@ $cards = [
         'accent' => 'accent-amber',
     ],
     [
-        'title' => '员工管理',
+        'title' => $isEmployee ? '个人信息' : '员工管理',
         'subtitle' => $isAdmin ? '员工档案与岗位维护' : '我的信息与联系方式',
         'desc' => $isAdmin
             ? '统一管理员工信息、岗位与联系方式，确保服务安排准确有序。新员工请通过前台注册。'
@@ -93,9 +93,7 @@ $cards = [
         'actions' => [
             ['label' => $isAdmin ? '进入管理' : '查看服务', 'url' => ['/fosterservice/index'], 'class' => 'btn-primary'],
         ],
-        'extra' => $isAdmin ? [
-            ['label' => '新增服务', 'url' => ['/fosterservice/create'], 'class' => 'btn-ghost'],
-        ] : [],
+        'extra' => [],
         'accent' => 'accent-olive',
     ],
 ];

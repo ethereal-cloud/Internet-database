@@ -33,7 +33,7 @@ AppAsset::register($this);
     $navItems = [
         ['label' => '后台首页', 'url' => ['/site/index']],
         ['label' => '宠物管理', 'url' => ['/pet/index']],
-        ['label' => '员工管理', 'url' => ['/employee/index']],
+        ['label' => $role === 'employee' ? '个人信息' : '员工管理', 'url' => ['/employee/index']],
         ['label' => '顾客管理', 'url' => ['/customer/index']],
         ['label' => '订单管理', 'url' => ['/fosterorder/index']],
         ['label' => '服务管理', 'url' => ['/fosterservice/index']],

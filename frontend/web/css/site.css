@@ -71,6 +71,16 @@ body {
     border-color: #e6b1a8;
 }
 
+.navbar-inverse .navbar-brand,
+.navbar-inverse .navbar-nav > li > a {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.navbar-inverse .navbar-brand {
+    height: 60px;
+}
+
 .navbar-fixed-top {
     top: 36px;
 }
@@ -126,6 +136,124 @@ body {
 .jumbotron {
     text-align: center;
     background-color: transparent;
+}
+
+.about-page {
+    background: #f7ede3;
+    border-radius: 24px;
+    padding: 36px 38px;
+    box-shadow: 0 18px 32px rgba(76, 55, 48, 0.12);
+    border: 1px solid rgba(120, 92, 82, 0.12);
+}
+
+.about-hero {
+    text-align: left;
+    margin-bottom: 26px;
+}
+
+.about-kicker {
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #7b6f66;
+    font-size: 12px;
+    margin: 0 0 10px;
+}
+
+.about-hero h1 {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: 30px;
+    margin: 0 0 12px;
+    color: #2d3f4a;
+}
+
+.about-lead {
+    font-size: 16px;
+    color: #4b4b4b;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.about-section {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(45, 63, 74, 0.1);
+}
+
+.about-section h2 {
+    font-size: 18px;
+    color: #2d3f4a;
+    margin: 0 0 12px;
+}
+
+.about-section h3 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    color: #2d3f4a;
+}
+
+.about-section p {
+    margin: 0 0 12px;
+    color: #4b4b4b;
+    line-height: 1.8;
+}
+
+.about-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+    display: grid;
+    gap: 8px;
+}
+
+.about-list li {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #3f474c;
+}
+
+.about-quote {
+    margin-top: 24px;
+    background: #efe3d7;
+    border-radius: 16px;
+    padding: 18px 22px;
+}
+
+.about-quote p {
+    margin: 0 0 8px;
+    color: #7b6f66;
+    font-size: 13px;
+}
+
+.about-quote blockquote {
+    margin: 0;
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: 22px;
+    color: #2d3f4a;
+    border-left: 4px solid #d3c1b4;
+    padding-left: 14px;
+}
+
+.about-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.about-columns > div {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.about-note {
+    background: #f2e8de;
+    border-radius: 14px;
+    padding: 16px 18px;
+}
+
+.about-note h2 {
+    margin-top: 0;
 }
 
 .customer-strip {
@@ -451,6 +579,14 @@ body {
     .customer-summary-grid > [class*="col-"] {
         width: 100%;
         flex: 0 0 calc(50% - 9px);
+    }
+
+    .about-page {
+        padding: 24px;
+    }
+
+    .about-columns {
+        grid-template-columns: 1fr;
     }
 
 }

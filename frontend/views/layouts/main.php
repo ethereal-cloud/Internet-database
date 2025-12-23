@@ -27,6 +27,7 @@ AppAsset::register($this);
 <?php $this->beginBody() ?>
 
 <div class="wrap">
+    <div class="main-top-strip">宠物寄养服务 · 今日信息一览</div>
     <?php
     NavBar::begin([
         'brandLabel' => 'Dogs&amp;Cats',

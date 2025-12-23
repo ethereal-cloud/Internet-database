@@ -45,11 +45,16 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
         <div class="customer-strip-tag">请选择功能页面</div>
         <div class="customer-strip">
             <div class="customer-strip-inner">
-                <div class="customer-strip-left">
-                    <h1>欢迎回来，<?= Html::encode($customer->Name ?: Yii::$app->user->identity->username) ?></h1>
-                    <p class="lead">请选择要进入的功能页面</p>
+                <div class="customer-strip-left customer-strip-image">
+                    <?= Html::img('@web/images/images.jpg', [
+                        'alt' => '功能入口展示',
+                    ]) ?>
                 </div>
                 <div class="customer-strip-right">
+                    <div class="customer-strip-heading">
+                        <h1>欢迎回来，<?= Html::encode($customer->Name ?: Yii::$app->user->identity->username) ?></h1>
+                        <p class="lead">请选择要进入的功能页面</p>
+                    </div>
                     <div class="customer-strip-menu">
                         <?= Html::a('个人信息', ['profile'], ['class' => 'customer-strip-link']) ?>
                         <?= Html::a('宠物信息', ['pets'], ['class' => 'customer-strip-link']) ?>
@@ -61,7 +66,8 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
         </div>
 
         <div class="body-content">
-            <div class="row">
+            <div class="customer-summary-block">
+                <div class="row customer-summary-grid">
                 <div class="col-sm-3">
                     <div class="panel panel-primary">
                         <div class="panel-heading">会员等级</div>
@@ -100,6 +106,7 @@ $this->title = $isCustomer ? '宠物寄养工作台' : 'My Yii Application';
                         </div>
                         <div class="panel-footer"><?= Html::a('查看服务列表', ['services']) ?></div>
                     </div>
+                </div>
                 </div>
             </div>
 

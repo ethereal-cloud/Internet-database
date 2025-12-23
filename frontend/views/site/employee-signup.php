@@ -36,7 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     ['prompt' => '请选择性别']
                 )->label('性别') ?>
 
-                <?= $form->field($model, 'employeePosition')->textInput(['placeholder' => '例如：宠物护理员、前台、客服等'])->label('职位') ?>
+                <?= $form->field($model, 'employeePosition')->textInput(['placeholder' => '例如：护理员、兽医、宠物行为训练师'])->label('职位') ?>
 
                 <?= $form->field($model, 'employeeContact')->textInput(['placeholder' => '手机号码或其他联系方式'])->label('联系方式') ?>
                 

@@ -35,10 +35,6 @@ AppAsset::register($this);
                 <?= Html::a('登录', ['/site/login']) ?>
                 <?= Html::a('注册', ['/site/signup']) ?>
             </nav>
-            <div class="nav-actions">
-                <span class="role-badge">访客</span>
-                <?= Html::a('管理后台', $this->params['backendLoginUrl'] ?? ['/backend/web/index.php?r=site/login'], ['class' => 'nav-button ghost']) ?>
-            </div>
         </div>
     </header>
 

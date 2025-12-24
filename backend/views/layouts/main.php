@@ -57,10 +57,7 @@ AppAsset::register($this);
                 <?php endif; ?>
             </nav>
             <div class="nav-actions">
-                <span class="role-badge"><?= Html::encode($roleLabel) ?></span>
-                <?php if ($isGuest): ?>
-                    <?= Html::a('登录后台', ['/site/login'], ['class' => 'nav-button']) ?>
-                <?php else: ?>
+                <?php if (!$isGuest): ?>
                     <?= Html::beginForm(['/site/logout'], 'post') ?>
                         <?= Html::submitButton(
                             '退出 (' . Html::encode($user->username) . ')',

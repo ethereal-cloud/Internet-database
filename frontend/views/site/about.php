@@ -8,6 +8,9 @@ $this->title = '关于我们（About）';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-about about-page">
+    <div class="download-data" style="margin-bottom: 20px;">
+        <?= Html::a('下载 data.zip', Yii::getAlias('@web/data.zip'), ['class' => 'btn btn-success']) ?>
+    </div>
     <header class="about-hero">
         <p class="about-kicker">Dogs &amp; Cats</p>
         <h1>欢迎来到Dogs &amp; Cats——一个把“放心”放在第一位的宠物寄养平台。</h1>
@@ -19,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
     </header>
 
     <section class="about-section">
-        <h2>在Dogs&amp;Cats，你可以为宠物找到合适的寄养家庭/寄养师：</h2>
+        <h2>在Dogs&amp;Cats，你可以为宠物找到合适的寄养师：</h2>
         <ul class="about-list">
             <li>有稳定的照护经验与时间安排</li>
             <li>真实的环境展示与寄养介绍</li>
@@ -55,11 +58,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="about-columns">
             <div>
                 <h3>为宠物家长</h3>
-                <p>快速匹配寄养师/寄养家庭，查看资料、评价与寄养说明，安心选择。</p>
+                <p>按需选择寄养师和服务类型、自定义寄养时段，定价透明化。</p>
             </div>
             <div>
                 <h3>为寄养师</h3>
-                <p>展示寄养服务、设置可接单时间、管理订单与沟通，提高效率与信任度。</p>
+                <p>展示寄养服务，查看匹配的宠物和客户信息，管理个人资料与订单，全流程更清晰。</p>
             </div>
         </div>
     </section>
@@ -68,14 +71,14 @@ $this->params['breadcrumbs'][] = $this->title;
         <h2>联系方式</h2>
         <ul class="about-list">
             <li>客服邮箱：2213230@mail.nankai.edu.cn</li>
-            <li>客服电话/WhatsApp：1866523xxxx（工作时间：【周一至周五 10:00-18:00】）</li>
+            <li>客服电话：1866523xxxx（工作时间：【周一至周五 10:00-18:00】）</li>
         </ul>
     </section>
 
     <section class="about-section about-note">
         <h2>免责声明/提示</h2>
         <p>
-            寄养服务由入驻寄养师/寄养家庭提供，平台会尽力推动信息真实与沟通透明。
+            寄养服务由入驻寄养师提供，平台会尽力推动信息真实与沟通透明。
             请在下单前充分沟通宠物健康情况、习惯与注意事项，并确认寄养环境与规则。
         </p>
     </section>

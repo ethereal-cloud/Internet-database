@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "W3School 小助手",
+  "version": "2.1.0",
+  "description": "在 w3school.com.cn 提供暗色/大字/阅读模式/目录/搜索高亮/回到顶部/代码块复制等功能。",
+  "action": {
+    "default_title": "W3School 小助手",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["activeTab", "scripting", "clipboardWrite"],
+  "host_permissions": ["https://www.w3school.com.cn/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.w3school.com.cn/*"],
+      "js": ["content.js"]
+    }
+  ]
+}

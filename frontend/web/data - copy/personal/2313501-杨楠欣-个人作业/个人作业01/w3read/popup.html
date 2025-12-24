@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>w3read</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">w3read</div>
+      <div class="subtitle">w3schools 阅读助手</div>
+    </header>
+
+    <section class="controls">
+  <button id="btn-add-bookmark">收藏页面</button>
+  <button id="btn-remove-ads">移除广告</button>
+  <button id="btn-clear-all-highlights">清除所有高亮</button>
+      <label class="switch">
+        夜间模式
+        <input type="checkbox" id="chk-night">
+        <span class="slider"></span>
+      </label>
+    </section>
+
+    <section class="bookmarks">
+      <h3>我的收藏</h3>
+      <div id="bookmark-list" class="list"></div>
+    </section>
+
+    <section class="timer">
+      <h3>阅读计时器</h3>
+      <div class="timer-ui">
+        <input id="timer-minutes" type="number" value="25" min="1" /> 分钟
+        <button id="timer-start">开始阅读</button>
+        <button id="timer-stop">停止</button>
+      </div>
+      <div id="timer-visual" class="timer-visual">
+      </div>
+    </section>
+
+    <footer>
+      <small>为 w3schools 量身定制 · w3read</small>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

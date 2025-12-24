@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:12px;min-width:260px;}
+    button,input{width:100%;padding:10px;margin:6px 0;box-sizing:border-box;}
+    .row{display:flex;gap:8px}
+    .row button{width:50%}
+    small{color:#666;display:block;margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div><b>W3School 小助手</b></div>
+  <small>仅在 w3school.com.cn 生效</small>
+
+  <div class="row">
+    <button id="toggleDark">暗色</button>
+    <button id="biggerFont">大字</button>
+  </div>
+
+  <button id="readingMode">阅读模式</button>
+  <button id="toggleToc">目录 TOC</button>
+
+  <input id="kw" placeholder="输入关键词（高亮搜索）" />
+  <button id="highlight">高亮搜索</button>
+  <button id="clearHighlight">清除高亮</button>
+
+  <button id="toTop">回到顶部</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

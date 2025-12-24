@@ -6,10 +6,38 @@ use yii\helpers\Html;
 
 $this->title = '关于我们（About）';
 $this->params['breadcrumbs'][] = $this->title;
+$base = Yii::getAlias('@web');
 ?>
 <div class="site-about about-page">
-    <div class="download-data" style="margin-bottom: 20px;">
-        <?= Html::a('下载 data.zip', Yii::getAlias('@web/data.zip'), ['class' => 'btn btn-success']) ?>
+    <div class="download-data" style="margin-bottom: 24px;">
+        <h3>文档与 PPT 在线查看</h3>
+        <div class="doc-lists">
+            <div class="doc-list">
+                <h4>团队作业</h4>
+                <ul>
+                    <li><?= Html::a('需求文档.pdf', $base . '/data - copy/team/需求文档.pdf') ?></li>
+                    <li><?= Html::a('设计文档.pdf', $base . '/data - copy/team/设计文档.pdf') ?></li>
+                    <li><?= Html::a('实现文档.pdf', $base . '/data - copy/team/实现文档.pdf') ?></li>
+                    <li><?= Html::a('部署文档.pdf', $base . '/data - copy/team/部署文档.pdf') ?></li>
+                    <li><?= Html::a('用户手册.pdf', $base . '/data - copy/team/用户手册.pdf') ?></li>
+                    <li><?= Html::a('互联网数据库大作业.pptx', $base . '/data - copy/team/互联网数据库大作业.pptx') ?></li>
+                </ul>
+            </div>
+            <div class="doc-list">
+                <h4>个人作业</h4>
+                <ul>
+                    <li><?= Html::a('2213230_向宇涵 / 作业1', $base . '/data - copy/personal/2213230_向宇涵/作业1（2213230_向宇涵）/作业1（2213230_向宇涵）.pdf') ?></li>
+                    <li><?= Html::a('2213230_向宇涵 / 作业2', $base . '/data - copy/personal/2213230_向宇涵/作业2（2213230_向宇涵）/作业2（2213230_向宇涵）.pdf') ?></li>
+                    <li><?= Html::a('2213230_向宇涵 / 作业3', $base . '/data - copy/personal/2213230_向宇涵/作业3（2213230_向宇涵）/作业3（2213230_向宇涵).pdf') ?></li>
+                    <li><?= Html::a('2311366-邵莫涵 / 作业1', $base . '/data - copy/personal/2311366-邵莫涵/hw1：前端实验初探.pdf') ?></li>
+                    <li><?= Html::a('2311366-邵莫涵 / 作业2', $base . '/data - copy/personal/2311366-邵莫涵/hw2：Web前端设计.pdf') ?></li>
+                    <li><?= Html::a('2311366-邵莫涵 / 作业3', $base . '/data - copy/personal/2311366-邵莫涵/hw3：开源建站工具初试.pdf') ?></li>
+                    <li><?= Html::a('2313501-杨楠欣 / 作业1', $base . '/data - copy/personal/2313501-杨楠欣-个人作业/个人作业01/作业一.pdf') ?></li>
+                    <li><?= Html::a('2313501-杨楠欣 / 作业2', $base . '/data - copy/personal/2313501-杨楠欣-个人作业/个人作业02/互联网数据库个人作业2——Web前端设计.pdf') ?></li>
+                    <li><?= Html::a('2313501-杨楠欣 / 作业3', $base . '/data - copy/personal/2313501-杨楠欣-个人作业/个人作业03/互联网数据库个人作业3——开源建站工具初试.pdf') ?></li>
+                </ul>
+            </div>
+        </div>
     </div>
     <header class="about-hero">
         <p class="about-kicker">Dogs &amp; Cats</p>
